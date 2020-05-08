@@ -1,0 +1,84 @@
+    <section id="bottom">
+        <div class="container wow fadeInDown" data-wow-duration="1000ms" data-wow-delay="600ms">
+            <div class="row">
+                 <div class="col-md-3 col-sm-6">
+                    <div class="widget">
+                        <h3>Navigation</h3>
+                        <ul>
+                            <li><a href="<?php echo base_url(); ?>">මුල් පිටුව</a></li>
+                            <li><a href="<?php echo base_url(); ?>GeneralInfo/aboutUs">අප ගැන</a></li>
+                            <li><a href="<?php echo base_url(); ?>GeneralInfo/director">කලාප අධ්‍යාපන අධ්‍යක්ෂ තුමිය</a></li>
+                            <li><a href="<?php echo base_url(); ?>GeneralInfo/assDirectors">සහකාර අධ්‍යාපන අධ්‍යකෂක වරු</a></li>
+                            <li><a href="<?php echo base_url(); ?>GeneralInfo/Contact">සම්බන්ධ වීම</a></li>
+                        </ul>
+                    </div>
+                </div><!--/.col-md-3-->
+                <div class="col-md-3 col-sm-6">
+                    <div class="widget">
+                        <h3>කොට්ඨාශ</h3>
+                        <ul>
+                            <li><a href="<?php echo base_url(); ?>GeneralInfo/morawakaDiv">මොරවක</a></li>
+                            <li><a href="<?php echo base_url(); ?>GeneralInfo/kotapolaDiv">කොටපොල</a></li>
+                            <li><a href="<?php echo base_url(); ?>GeneralInfo/pasgodaDiv">පස්ගොඩ</a></li>
+                        </ul>
+                    </div>
+                </div><!--/.col-md-3-->
+                <div class="col-md-3 col-sm-6">
+                    <div class="widget">
+                        <h3>ප්‍රතිඵල විශ්ලේෂණය</h3>
+                        <ul>
+                            <li><a href="#">අ.පො.ස. සා/පෙළ(O/L)</a></li>
+                            <li><a href="#">අ.පො.ස. උ/පෙළ(A/L)</a></li>
+                            <li><a href="#">ශිෂ්‍යත්ව විභාගය(Grade 5)</a></li>
+                        </ul>
+                    </div>
+                </div><!--/.col-md-3-->
+                <div class="col-md-3 col-sm-6">
+                    <div class="widget">
+                        <h3>අංශ</h3>
+                        <ul>
+                            <li><a href="<?php echo base_url(); ?>TeacherInstitution">ගුරු ආයතන අංශය</a></li>
+                            <li><a href="<?php echo base_url(); ?>GeneralControl">සාමාන‍්‍ය පාලන අංශය</a></li>
+                            <li><a href="<?php echo base_url(); ?>PlanningSection">සැළසුම් අංශය</a></li>
+                            <li><a href="<?php echo base_url(); ?>DevelopmentSection">සංවර්ධන අංශය</a></li>
+                            <li><a href="<?php echo base_url(); ?>salarySection">වැටුප් අංශය</a></li>
+                            <li><a href="<?php echo base_url(); ?>AccountSection">ගිණුම් අංශය</a></li>
+                        </ul>
+                    </div>
+                </div><!--/.col-md-3-->
+            </div>
+        </div>
+    </section><!--/#bottom-->
+
+    <footer id="footer" class="midnight-blue">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    &copy; 2017 <a target="_blank" href="http://shapebootstrap.net/" title="Free Twitter Bootstrap WordPress Themes and HTML templates">Deniyaya Zonal Education Office</a>. All Rights Reserved.
+                    <br />
+                    Designed by ICT teachers
+                </div>
+                <div class="col-sm-6">
+                    <ul class="pull-right">
+                        <li><a href="<?php echo base_url(); ?>">මුල් පිටුව</a></li>
+                        <li><a href="<?php echo base_url(); ?>GeneralInfo/aboutUs">අප ගැන</a></li>
+                        <li><a href="<?php echo base_url(); ?>GeneralInfo/Contact">සම්බන්ධ වීම</a></li>
+                        <li><a href="<?php echo base_url(); ?>GeneralInfo/loginPage"> Login </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer><!--/#footer-->
+
+    <script src="<?php echo base_url(); ?>assets/js/jquery.js"></script>
+    <script src="<?php echo base_url(); ?>assets/js/bootstrap.min.js"></script>
+    <script src="<?php echo base_url(); ?>assets/js/jquery.prettyPhoto.js"></script>
+    <script src="<?php echo base_url(); ?>assets/js/jquery.isotope.min.js"></script>
+    <script src="<?php echo base_url(); ?>assets/js/main.js"></script>
+    <script src="<?php echo base_url(); ?>assets/js/wow.min.js"></script>
+    <!-- sweet alert-->
+    <script src="<?php echo base_url(); ?>assets/js/sweetalert/sweetalert.min.js"></script>
+
+    <script src="<?php echo base_url(); ?>assets/js/custom.js"></script>
+</body>
+</html>

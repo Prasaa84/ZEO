@@ -1,0 +1,26 @@
+
+WWWAcct 12.6.0 (c) 2016 cPanel, Inc....
+
+Dns Zone check is enabled.
++===================================+
+| New Account Info                  |
++===================================+
+| Domain: denizone.sch.lk
+| Ip: 43.224.127.64 (n)
+| HasCgi: y
+| UserName: denizone
+| PassWord: {s%EH,s6&TkF
+| CpanelMod: paper_lantern
+| HomeRoot: /home
+| Quota: 200 MB
+| NameServer1: ns1.schoolnet.lk
+| NameServer2: ns2.schoolnet.lk
+| NameServer3: 
+| NameServer4: 
+| Contact Email: denizone@sch.lk
+| Package: School
+| Feature List: default
+| Language: en
+https://cpanel.denizone.sch.lk/
+
+:

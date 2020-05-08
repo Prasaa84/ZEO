@@ -1,0 +1,19 @@
+$user = "94123456789";
+$password = "0000";
+$text = urlencode("This is an example message");
+$to = "94000000000";
+ 
+$baseurl ="http://www.textit.biz/sendmsg";
+$url = "$baseurl/?id=$user&pw=$password&to=$to&text=$text";
+$ret = file($url);
+ 
+$res= explode(":",$ret[0]);
+ 
+if (trim($res[0])=="OK")
+{
+echo "Message Sent - ID : ".$res[1];
+}
+else
+{
+echo "Sent Failed - Error : ".$res[1];
+}

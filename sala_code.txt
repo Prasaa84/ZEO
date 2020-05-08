@@ -1,0 +1,49 @@
+public function not_used_material() {
+        $data = array();
+        $this->load->model('product_model');
+        $this->load->model('formulation_model');
+        if (isset($_POST['find'])) {
+            $start_date = $_POST['datepicker'];
+            $end_date = $_POST['datepickertwo'];
+            $type = $_POST['mat_type'];
+
+            $materiallist = array();
+            if ($type == 'Raw') {
+                // $product = $this->product_model->get_product_by_businesstype('R');
+                $product = $this->formulation_model->get_all_product('Other', 'R-');
+               
+
+                $y = 0;
+                foreach ($product as $row) {
+                    $productInfo = $this->formulation_model->get_material_usage($row->ProductID, $start_date, $end_date);
+                    if (count($productInfo) == 0) {
+
+                        $commonproductInfo = $this->formulation_model->get_all_common_product($row->ProductID, $start_date, $end_date);
+                        if (count($commonproductInfo) == 0) {
+
+                            $materialQty = $this->formulation_model->get_material_usage_by_productId($row->ProductID);
+                            $materiallist[$row->Description . '##' . $row->ProductCode . '##' . $materialQty[0]->TotalQty][$row->BusinessType][$y] = $materiallist;
+                            $y++;
+                        }
+                    }
+                }
+            } else {
+                $productPacking = $this->formulation_model->get_all_product('Other', 'PM-');
+                // $productPacking = $this->product_model->get_product_by_businesstype('PM');
+                foreach ($productPacking as $rowp) {
+                    $productPackingInfo = $this->formulation_model->packing_material_usage_by_product_id($rowp->ProductID, $start_date, $end_date);
+                    if (count($productPackingInfo) == 0) {
+
+                        $materialPQty = $this->formulation_model->get_material_usage_by_productId($rowp->ProductID);
+                        $materiallist[$rowp->Description . '##' . $rowp->ProductCode . '##' . $materialPQty[0]->TotalQty][$rowp->BusinessType][$y] = $materiallist;
+                        $y++;
+                    }
+                }
+            }
+
+
+            $data['material_list'] = $materiallist;
+        }
+
+        $this->load->view('/production/report/not_used_product', $data);
+    }

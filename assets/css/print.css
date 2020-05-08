@@ -1,0 +1,30 @@
+body {-webkit-print-color-adjust: exact;}
+#letterHead{border-bottom:solid thin #960;}
+#heading{visibility: visible;}
+@media screen{
+    @page {
+        size: 21cm 29.7cm;
+        margin: 30mm 45mm 30mm 100mm;
+   }
+    //#banner{ width:400px; height:100px; padding:10px; background-image:url(../images/letterhead/logo.png); background-repeat:no-repeat; margin-bottom:20px; -webkit-print-color-adjust: exact;}
+    //#address{ width:210px; height:100px;background-image:url(../images/letterhead/address.png); background-repeat:no-repeat; margin-top: 10px; -webkit-print-color-adjust: exact; }
+    * {
+        -webkit-print-color-adjust:exact;
+        print-color-adjust: exact;
+    }
+#heading{visibility: visible;}
+}
+
+@media print{
+   * {
+        -webkit-print-color-adjust:exact;
+        print-color-adjust: exact;
+    }
+    //#banner{ width:400px; height:100px; padding:10px; background-image:url(../images/letterhead/logo.png) !important; background-repeat:no-repeat; margin-bottom:20px; -webkit-print-color-adjust: exact;}
+    //#address{ width:210px; height:100px;background-image:url(../images/letterhead/address.png) !important; background-repeat:no-repeat; margin-top: 10px; -webkit-print-color-adjust: exact; }
+    * {
+        -webkit-print-color-adjust:exact;
+        print-color-adjust: exact;
+    }
+#heading{visibility: visible;}
+}
