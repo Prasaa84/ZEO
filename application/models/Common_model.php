@@ -3,7 +3,44 @@ class Common_model extends CI_Model{
 
     public function __construct(){
         parent::__construct();
+        
     }
+    // send email when create school user and send user login details
+    public function send_mail($to_email,$subject,$message) { 
+         //Load email library 
+         $this->load->library('email'); 
+         $config = Array(
+            'protocol' => 'smtp', // 'mail', 'sendmail', or 'smtp'
+            'smtp_host' => 'smtp.gmail.com', 
+            'smtp_port' => 465,
+            'smtp_user' => 'sunethraedirisinghe@gmail.com',
+            'smtp_pass' => 'Egsmalka',
+            'smtp_crypto' => 'ssl', //can be 'ssl' or 'tls' for example
+            'mailtype' => 'html', //plaintext 'text' mails or 'html'
+            //'smtp_timeout' => '4', //in seconds
+            'charset' => 'iso-8859-1',
+            'wordwrap' => TRUE
+         );
+
+         $from_email = "sunethraedirisinghe@gmail.com"; 
+         $to_email = $to_email; 
+         //echo $from_email.$to_email.$subject.$message;
+         //die();
+         $this->email->initialize($config);
+         $this->email->set_newline("\r\n");
+         $this->email->from($from_email, 'Deniyaya ZEO'); 
+         $this->email->to($to_email);
+         $this->email->subject($subject); 
+         $this->email->message($message); 
+   
+         //Send mail 
+         if($this->email->send()){
+            echo 'sent';
+         }else{ 
+            show_error($this->email->print_debugger()); 
+         }
+         //die();
+    } 
     public function get_all_schools(){
         $this->db->select('*');
         $this->db->from('school_details_tbl');
@@ -26,7 +63,7 @@ class Common_model extends CI_Model{
     }
     public function get_all_grades(){
         $this->db->select('*');
-        $this->db->from('grade_tbl');
+        $this->db->from('student_grades_tbl');
         $query = $this->db->get();
         if ($query->num_rows() > 0) {
             return $query->result();
@@ -36,7 +73,7 @@ class Common_model extends CI_Model{
     }
     public function get_all_classes(){
         $this->db->select('*');
-        $this->db->from('class_tbl');
+        $this->db->from('student_classes_tbl');
         $query = $this->db->get();
         if ($query->num_rows() > 0) {
             return $query->result();
