@@ -11,6 +11,7 @@ class School extends CI_Controller {
         $this->load->model('School_model');
         $this->load->model('User_model');
         $this->load->model('Alert_model');
+        $this->load->model('Common_model');
         $this->all_gs_div = $this->view_all_gs_divisions(); // view divisions in find school page
         $this->all_edu_div = $this->view_all_edu_divisions(); // view divisions in find school page
         $this->all_sch_types = $this->view_all_sch_types(); // view school types in find school page
@@ -131,6 +132,18 @@ class School extends CI_Controller {
                             $this->session->set_flashdata('msg', array('text' => 'Could n\'t add school user!!!','class' => 'alert alert-danger'));
                             redirect('School/viewAddSchoolPage');                   
                         }else{ 
+                            $toEmail = $this->input->post('txt_email');
+                            $subject = 'Deniyaya Zonal Education Office - Login Details';
+                            $username = 'school_user';
+                            $password = $this->input->post('txt_census_id');
+                            $message = 'Please click on this link to access Management Information System of Zonal Education Office, Deniyaya<br>';
+                            $message .= 'http://www.denizone.sch.lk/GeneralInfo/loginPage'.'<br>';
+                            $message .= 'Your login details'.'<br>';
+                            $message .= 'User name - '.$username.'<br>';
+                            $message .= 'Password - '.$password.'<br>';
+                            $message .= 'You can change your username and password after log in to the system';
+                            $this->Common_model->send_mail($toEmail,$subject,$message);
+                            //die();
                             $user_id = $id; // from above code
                             $now = date('Y-m-d H:i:s');
                             $data = array(
