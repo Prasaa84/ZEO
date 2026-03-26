@@ -8,7 +8,9 @@
       	<!-- Breadcrumbs-->
     	<ol class="breadcrumb">
         	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>user">Dashboard</a></li>
-        	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>school">School</a></li>
+	        <li class="breadcrumb-item">
+	          <a href="<?php echo base_url(); ?>physicalResource/viewAddPhysicalResourcePage">Physical Resources</a>
+	        </li>        	
         	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>Building/viewDetails">Buildings</a></li>
         	<li class="breadcrumb-item active">Building Details Update</a></li>
       	</ol>

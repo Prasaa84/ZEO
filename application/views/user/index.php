@@ -77,7 +77,7 @@
                   <?php
                     if(!empty($user_details)) {                              
                       $attributes = array("class" => "form-horizontal", "id" => "update-user", "name" => "update-user");
-                      echo form_open("user/changeUser", $attributes);?>                  
+                      echo form_open("User/changeUser", $attributes);?>                  
                   <div class="table-responsive">
                     <table id="dataTable" class="table table-striped table-hover " cellspacing="0">
                       <thead>
@@ -104,7 +104,11 @@
                           $u_name = $user->username;
                           $status_id = $user->status_id;
                           $status = $user->status_type;
-                          $census_id = $user->census_id;
+                          if($role_id != 2){
+                            $census_id = '';
+                          }else{
+                            $census_id = $user->census_id;
+                          }
                           $add_dt = $user->added_dt;
                           $upd_dt = $user->updated_dt;                          
                           if($latest_upd_dt < $upd_dt){
@@ -115,6 +119,7 @@
                           <td>
                             <input type="checkbox" name="chkbox[]" value="<?php echo $u_id; ?>" class="checkbox">
                           </td>
+                          <?php //echo md5('07013'); ?>
                           <th><?php echo $no; ?></th>
                           <td style="vertical-align:middle;"><?php echo $u_id; ?></td>
                           <td style="vertical-align:middle" ><?php echo $role_name; ?></td>
@@ -242,6 +247,17 @@
                         </div>
                       </div> <!-- /row -->
                     </div> <!-- /form group -->
+                    <div class="form-group" id="edu_div_form_group">
+                      <div class="row">
+                        <div class="col-lg-4 col-sm-4">
+                          <label for="User ID" class="control-label"> Division </label>
+                        </div>
+                        <div class="col-lg-8 col-sm-8">
+                          <input class="form-control" id="edu_div_txt" name="edu_div_txt" placeholder="---Type here---" type="text" value="<?php echo set_value('edu_div_txt'); ?>" />
+                          <input type="hidden" name="edu_div_id_hidden" id="edu_div_id_hidden" value="">
+                        </div>
+                      </div> <!-- /row -->
+                    </div> <!-- /form group -->
                     <div class="form-group">
                       <div class="row">
                         <div class="col-lg-4 col-sm-4">
@@ -284,55 +300,97 @@
     <script src="<?php echo base_url(); ?>assets/datatables/js/buttons.print.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/datatables/js/buttons.colVis.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/datatables/js/dataTables.select.min.js"></script>
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#dataTable').DataTable({
-            dom: 'Bfrtip',
-            buttons: [
-              {
-                extend: 'print',
-                text: 'Print'
-              },
-              {
-                extend: 'pdf',
-                messageBottom: null
-              },
-            ],
-            select: true
-        });
-        $('#chkbox_all_select').click(function(){ // check boxes are checked using one chkbox
-          if($(this).is(':checked')){
-            $('#dataTable .checkbox').prop('checked',true);
-          }else{
-            $('#dataTable .checkbox').prop('checked',false);
+<!--     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>    
+ --> 
+    
+<script type="text/javascript">
+    $(document).ready(function(){
+      $('#dataTable').DataTable({
+        dom: 'Bfrtip',
+        buttons: [
+          {
+            extend: 'print',
+            text: 'Print'
+          },
+          {
+            extend: 'pdf',
+            messageBottom: null
+          },
+        ],
+        select: true
+      });
+      $('#chkbox_all_select').click(function(){ // check boxes are checked using one chkbox
+        if($(this).is(':checked')){
+          $('#dataTable .checkbox').prop('checked',true);
+        }else{
+          $('#dataTable .checkbox').prop('checked',false);
+        }
+      });
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function(){
+      // Start jQuery click function to view Bootstrap modal when view info button is clicked
+      $('#dataTable').delegate('.view_data','click',function(){
+        // Get the id of selected user and assign it in a variable called userData
+          var userId = $(this).attr('id');
+          //alert(userId);
+          // Start AJAX function
+          $.ajax({
+          // Path for controller function which fetches selected user data
+          url: "<?php echo base_url() ?>User/viewUserInfoByUserId",
+          // Method of getting data
+          method: "POST",
+          // Data is sent to the server
+          data: {userId:userId},
+          // Callback function that is executed after data is successfully sent and recieved
+          success: function(data){
+            // Print the fetched data of the selected user in the section called #user_result 
+            // within the Bootstrap modal
+              $('#user_result').html(data);
+              // Display the Bootstrap modal
+              $('#userInfoModal').modal('show');
           }
         });
+        // End AJAX function
       });
-
-      $(document).ready(function(){
-      // Start jQuery click function to view Bootstrap modal when view info button is clicked
-        $('#dataTable').delegate('.view_data','click',function(){
-          // Get the id of selected user and assign it in a variable called userData
-            var userId = $(this).attr('id');
-            //alert(userId);
-            // Start AJAX function
-            $.ajax({
-            // Path for controller function which fetches selected user data
-            url: "<?php echo base_url() ?>User/viewUserInfoByUserId",
-            // Method of getting data
-            method: "POST",
-            // Data is sent to the server
-            data: {userId:userId},
-            // Callback function that is executed after data is successfully sent and recieved
-            success: function(data){
-              // Print the fetched data of the selected user in the section called #user_result 
-              // within the Bootstrap modal
-                $('#user_result').html(data);
-                // Display the Bootstrap modal
-                $('#userInfoModal').modal('show');
+        // auto complete when type edu. division
+      $( "#edu_div_txt" ).autocomplete({
+        source: function( request, response ) {
+          // Fetch data
+          $.ajax({
+            url: "<?=base_url()?>School/viewDivisionsList",
+            type: 'post',
+            dataType: "json",
+            data: {
+              search: request.term
+            },
+            success: function( data ) {
+              response( data );
             }
           });
-          // End AJAX function
-        });
+        },
+        appendTo: "#addNewUserModal",
+        select: function (event, ui) {
+          // Set selection
+          $('#edu_div_txt').val(ui.item.label); // display the selected text
+          $('#edu_div_id_hidden').val(ui.item.value); // save selected id to input
+          //alert(ui.item.value);
+          return false;
+        }
       });
-  </script>
+
+      $('#edu_div_form_group').hide();
+
+      $('#user_role_select').change(function () {  
+        $role_id = $('#user_role_select').val();
+        //alert($role_id);
+        if($role_id==7){        
+          $('#edu_div_form_group').fadeIn();
+        }else{
+          $('#edu_div_form_group').fadeOut();
+        }
+      });
+
+    });
+</script>

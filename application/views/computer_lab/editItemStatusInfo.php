@@ -8,7 +8,6 @@
       	<!-- Breadcrumbs-->
     	<ol class="breadcrumb">
         	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>user">Dashboard</a></li>
-        	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>school">School</a></li>
         	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>ComputerLab/viewDetails">Computer Laboratory</a></li>
         	<li class="breadcrumb-item active">Computer Resource Item Status Update</a></li>
       	</ol>

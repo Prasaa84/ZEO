@@ -1,3 +1,8 @@
+<style type="text/css">
+
+  //th, td { white-space: nowrap; }
+
+</style>
 <?php
   foreach($this->session as $user_data){
     $userid = $user_data['userid'];
@@ -15,9 +20,6 @@
         <li class="breadcrumb-item">
           <a href="<?php echo base_url(); ?>user">Dashboard</a>
         </li>
-        <li class="breadcrumb-item">
-          <a href="<?php echo base_url(); ?>school">School</a>
-        </li>
         <li class="breadcrumb-item active">Furniture</li>
       </ol>
       <?php
@@ -29,7 +31,6 @@
               <form class="navbar-form" role="search" id="srch_furniture_info_by_censusid" name="srch_furniture_info_by_censusid" action="<?php echo base_url(); ?>Furniture/viewFurnitureInfoByCensusId" method="POST">
                 <div class="form-group">
                   <div class="input-group addon">
-                    <label>සංඝණන අංකය ඇතුලත් කරන්න &nbsp;</label>
                     <input class="form-control" placeholder="Census ID..." name="censusid_txt" id="censusid_txt" type="text" value="<?php echo set_value('censusid_txt'); ?>">
                     <button type="submit" class="btn btn-default input-group-addon" name="btn_view_details_by_census" value="View"><i class="fa fa-search"></i></button>
                   </div> <!-- /input-group -->
@@ -73,16 +74,18 @@
                   <div class="table-responsive">
                     <table id="dataTable" class="table table-striped table-hover" cellspacing="0">
                       <thead>
-                        <tr>
+                        <tr align="center">
                           <th>#</th>
-                          <th class="col-sm-3">අයිතමය</th>
-                          <th class="col-sm-1">පවතින ප්‍රමාණය</th>
-                          <th class="col-sm-1">ප්‍රයෝජනයට ගතහැකි ප්‍රමාණය</th>
-                          <th class="col-sm-1">අළුත්වැඩියා කලහැකි ප්‍රමාණය</th>
-                          <th class="col-sm-1">තවදුරටත් අවශ්‍ය ප්‍රමාණය</th>
-                      <?php if(($role_id=='1') || ($role_id=='2')){ ?>
-                            <th class="col-sm-1"></th><th class="col-sm-1"></th>
-                          <?php } ?>
+                          <th>අයිතමය</th>
+                          <th>පවතින ප්‍රමාණය</th>
+                          <th>ප්‍රයෝජනයට ගතහැකි ප්‍රමාණය</th>
+                          <th>අළුත්වැඩියා කලහැකි ප්‍රමාණය</th>
+                          <th>අළුත්වැඩියා කලනොහැකි ප්‍රමාණය</th>
+                          <th>තවදුරටත් අවශ්‍ය ප්‍රමාණය</th>
+                          <th class="col-sm-2">යාවත්කාලීන කල දිනය</th>
+                    <?php if( ($role_id=='1') || ($role_id=='2') ){ ?>
+                            <th></th><!-- <th></th> -->
+                    <?php } ?>
                         </tr>
                       </thead>
                       <tbody>
@@ -97,28 +100,31 @@
                           $qty = $row->quantity;
                           $usable = $row->usable;
                           $repairable = $row->repairable;
+                          $not_repairable = $qty - ($usable+$repairable);
                           $needed_more = $row->needed_more;
-                          $date_added = $row->date_added;
-                          $update_dt = $row->last_update;
+                          $date_added = $row->added_date;
+                          $update_dt = $row->updated_date;
                           if($latest_upd_dt < $update_dt){
                             $latest_upd_dt = $update_dt;
                           }
                           $no = $no + 1;  ?>
                         <tr>
                           <th><?php echo $no; ?></th>
-                          <td style="vertical-align:middle;"><?php echo $fur_item; ?></td>
-                          <td style="vertical-align:middle" ><?php echo $qty; ?></td>
-                          <td style="vertical-align:middle" ><?php echo $usable; ?></td>
-                          <td style="vertical-align:middle" ><?php echo $repairable; ?></td>
-                          <td style="vertical-align:middle" ><?php echo $needed_more; ?></td>
+                          <td style="text-align: center;"><?php echo $fur_item; ?></td>
+                          <td style="text-align: center;" ><?php echo $qty; ?></td>
+                          <td style="text-align: center;" ><?php echo $usable; ?></td>
+                          <td style="text-align: center;" ><?php echo $repairable; ?></td>
+                          <td style="text-align: center;" ><?php echo $not_repairable; ?></td>
+                          <td style="text-align: center;" ><?php echo $needed_more; ?></td>
+                          <td style="text-align: center;" ><?php echo $update_dt; ?></td>
                     <?php if(($role_id=='1') || ($role_id=='2')){ ?>
                             <td id="td_btn" style="vertical-align:middle">
-                              <a href="<?php echo base_url(); ?>Furniture/editFurnitureInfoPage/<?php echo $fur_item_count_id; ?>" type="button" id="btn_edit_fur_info" name="btn_edit_fur_info" type="button" class="btn btn-info btn-sm btn_edit_phy_res" value="edit" title="Update this details" data-toggle="tooltip" data-hidden="" onclick="get(<?php echo $fur_item_count_id; ?>)"><i class="fa fa-pencil"></i></a>
+                              <a href="<?php echo base_url(); ?>Furniture/editFurnitureInfoPage/<?php echo $fur_item_count_id; ?>" type="button" id="btn_edit_building_info" name="btn_edit_building_info" type="button" class="btn btn-info btn-sm btn_edit_phy_res" value="edit" title="Update this details" data-toggle="tooltip" data-hidden="" onclick="get(<?php echo $fur_item_count_id; ?>)"><i class="fa fa-pencil"></i></a>
                             </td>
-                            <td id="td_btn" style="vertical-align:middle">
-                              <!-- when delete, census id must be sent, since it is used to go back after delete -->
-                              <a href="<?php echo base_url(); ?>Furniture/deleteFurnitureInfo/<?php echo $fur_item_count_id; ?>/<?php echo $census_id; ?>" type="button" name="btn_delete_fur_info" class="btn btn-danger btn-sm" value="Cancel" data-toggle="tooltip" title="Delete this details" onClick="return confirmItemStatusDetailsDelete();"><i class="fa fa-trash-o"></i></a>
-                            </td>
+                            <!-- <td id="td_btn" style="text-align: center;">
+                               when delete, census id must be sent, since it is used to go back after delete 
+                              <a href="<?php //echo base_url(); ?>Furniture/deleteFurnitureInfo/<?php //echo $fur_item_count_id; ?>/<?php //echo $census_id; ?>" type="button" name="btn_delete_fur_info" class="btn btn-danger btn-sm" value="Cancel" data-toggle="tooltip" title="Delete this details" onClick="return confirmItemStatusDetailsDelete();"><i class="fa fa-trash-o"></i></a>
+                            </td> -->
                     <?php } ?>
                         </tr>
                   <?php } ?>
@@ -138,13 +144,13 @@
               </div> 
               <button id="insert_furniture_info_form_btn" name="insert_furniture_info_form_btn" type="button" class="btn btn-primary btn-sm" value="Add"  data-toggle="modal" data-target="#addNewFurnitureInfo" ><i class="fa fa-plus"></i> Add New</button>
               <?php 
-                if(!empty($building_info_by_census)) {    ?>           
-                  <a href="<?php echo base_url(); ?>ExcelExport/printSanitaryInfoByCensusId/<?php echo $census_id; ?>" id="btn_print_lib_res_details" name="btn_print_lib_res_details" type="button" class="btn btn-success btn-sm" ><i class="fa fa-print"></i> Save to Print </a>
+                if(!empty($furniture_info_by_census)) {    ?>           
+                  <a href="<?php echo base_url(); ?>ExcelExport/printFurnitureInfoByCensusId/<?php echo $census_id; ?>" id="btn_print_furniture_info_details" name="btn_print_furniture_info_details" type="button" class="btn btn-success btn-sm" ><i class="fa fa-print"></i> Save to Print </a>
               <?php } ?>
             </div> <!-- /card-body -->
             <div class="card-footer small text-muted">
               <?php 
-                if(!empty($building_info_by_census)) { 
+                if(!empty($furniture_info_by_census)) { 
                   $latest_upd_dt = strtotime($latest_upd_dt);
                   $fur_update_dt = date("j F Y",$latest_upd_dt);
                   $fur_update_tm = date("h:i A",$latest_upd_dt);

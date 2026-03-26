@@ -13,7 +13,7 @@
       	</ol>
 	        <?php
 				if(empty($gc_result)) {   ?>
-                	<div class="alert alert-danger" style="">
+                	<div class="alert alert-danger" >
                         <?php echo 'No records!!!'; ?>
                     </div>
                     <?php }else{ ?>

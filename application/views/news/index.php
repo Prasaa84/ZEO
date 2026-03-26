@@ -144,7 +144,7 @@
                           <label for="featured image" class="control-label"> Featured Image </label>
                         </div>
                         <div class="col-lg-9 col-sm-9">
-                          <input type="file" name="featured_image" size="20" id="featured_image" title="Change Image" />
+                          <input type="file" name="featured_image" size="20" id="featured_image" title="Only Jpg type is allowed. Max width-1024px. Max height-768px" data-toggle="tooltip" />
                         </div>
                       </div> <!-- /row -->
                     </div> <!-- /form group -->

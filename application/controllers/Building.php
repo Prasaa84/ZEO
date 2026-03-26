@@ -57,27 +57,24 @@ class Building extends CI_Controller {
             if ($this->input->post('btn_add_new_building_info') == "Add_New"){
                 //echo $this->input->post('repaired_chkbox'); die(); 
                 $this->form_validation->set_rules("building_cat_select","Building category","trim|required");
-                $this->form_validation->set_rules("size_select","Building size","trim|required");
                 $this->form_validation->set_rules("usage_select","Building usage","trim|required");
+                $this->form_validation->set_rules("size_select","Building size","trim|required");
                 $this->form_validation->set_rules("donatedby_txt","Who donated?","trim|required");               
-                if(($this->input->post('repaired_chkbox')) || !empty($this->input->post('repaired_institute_txt')) || !empty($this->input->post('repaired_date_txt'))){
+                if( !empty($this->input->post('repaired_chkbox') ) ){
                     $this->form_validation->set_rules("repaired_institute_txt","Who repaired?","trim|required");               
                     $this->form_validation->set_rules("repaired_date_txt","Donator","trim|required");               
                     $this->form_validation->set_rules("repaired_info_txtarea","Repaired details","trim|required");               
                 }
-                if(($this->input->post('repairable_chkbox')) || !empty($this->input->post('repairable_part_txt')) || !empty($this->input->post('repairable_info_txtarea'))){
+                if( !empty( $this->input->post('repairable_chkbox') ) ){
                     $this->form_validation->set_rules("repairable_part_txt","Repairable part","trim|required");               
                     $this->form_validation->set_rules("repairable_info_txtarea","Repairing details","trim|required");               
                 }
-                if ($this->form_validation->run() == FALSE){
+                if ( $this->form_validation->run() == FALSE ){
                     //validation fails
-                    $this->session->set_flashdata('msg', array('text' => 'All the fields are required!','class' => 'alert alert-danger'));
+                    $this->session->set_flashdata('error', validation_errors());
+                    //$this->session->set_flashdata('msg', array('text' => 'All the fields are required!','class' => 'alert alert-danger'));
                     $this->viewDetails();
                 }else{
-                    $censusId = $this->input->post('census_id_select');
-                    $itemId = $this->input->post('building_cat_select');
-                    $qty = $this->input->post('size_select');
-                    $usable = $this->input->post('donatedby_txt');
                     $now = date('Y-m-d H:i:s');
                     $data = array(
                         'b_info_id' => '',
@@ -86,16 +83,17 @@ class Building extends CI_Controller {
                         'b_size_id' => $this->input->post('size_select'),
                         'b_usage_id' => $this->input->post('usage_select'),
                         'donated_by' => $this->input->post('donatedby_txt'), // donated to supply the building
+                        'built_year' => $this->input->post('built_year_txt'), // built year 
                         'date_added' => $now,
                         'date_updated' => $now,
                         'is_deleted' => '',
                     );
                     $b_info_id = $this->Building_model->add_new_building_details($data); /// add to building_info_tbl
-                    if($this->input->post('repaired_chkbox')){
+                    if( !empty($this->input->post('repaired_chkbox')) ){
                        $data = array(
                         'b_repaired_id' => '',
                         'b_info_id' => $b_info_id,
-                        'repaired_by' => $this->input->post('donated_by_txt'),  // donated to repair the building
+                        'repaired_by' => $this->input->post('repaired_institute_txt'),  // donated by to repair the building
                         'repaired_date' => $this->input->post('repaired_date_txt'),
                         'description' => $this->input->post('repaired_info_txtarea'),
                         'date_added' => $now,
@@ -105,7 +103,7 @@ class Building extends CI_Controller {
                         $result1 = $this->Building_model->add_repaired_building_details($data); /// add to building_info_tbl
                         $this->session->set_flashdata('repairMsg', array('text' => 'Building Repaired Details added successfully','class' => 'alert alert-success'));
                     }
-                    if($this->input->post('repairable_chkbox')){
+                    if( !empty($this->input->post('repairable_chkbox')) ){
                        $data = array(
                         'b_to_be_repaired_id' => '',
                         'b_info_id' => $b_info_id,
@@ -220,6 +218,7 @@ class Building extends CI_Controller {
                     'b_size_id' => $this->input->post('size_select'),
                     'b_usage_id' => $this->input->post('usage_select'),                    
                     'donated_by' => $this->input->post('donatedby_txt'),
+                    'built_year' => $this->input->post('built_year_txt'),
                     'date_added' => $this->input->post('date_added_txt'),
                     'date_updated' => $now,
                     'is_deleted' => 0,

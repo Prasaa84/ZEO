@@ -7,8 +7,13 @@ class Library extends CI_Controller {
         parent::__construct();
         $this->load->model('School_model');
         $this->load->model('Library_model');
+        $this->load->model('Common_model');
         $this->all_lib_items = $this->view_all_items();
-        $this->all_schools = $this->view_all_schools();
+        $this->userrole_id = $this->session->userdata['userrole_id'];
+        if($this->userrole_id != '2'){ 
+            $this->all_schools = $this->view_all_schools();
+            $this->all_edu_divisions = $this->Common_model->get_divisions(); 
+        }
     }
 
     // view library resources details page
@@ -261,13 +266,13 @@ class Library extends CI_Controller {
     public function viewItemStatusByCensusId(){
         if(is_logged_in()){
             if ($_SERVER["REQUEST_METHOD"] == "POST"){ // check the submit button
-                $this->form_validation->set_rules("censusid_txt","Census ID","trim|required|regex_match[/^[0-9]{5}$/]");
+                $this->form_validation->set_rules("census_id_hidden","Census ID","trim|required|regex_match[/^[0-9]{5}$/]");
                 if ($this->form_validation->run() == FALSE){
                     //validation fails
                     $this->session->set_flashdata('msg', array('text' => 'Census ID is not correct!','class' => 'alert alert-danger'));
                     redirect('Library/viewDetails');
                 }else{  
-                    $censusId = $this->input->post('censusid_txt');
+                    $censusId = $this->input->post('census_id_hidden');
                     $result = $this->Library_model->view_item_status_by_census_id($censusId);
                     //print_r($result); die();
                     if($result){
@@ -288,5 +293,45 @@ class Library extends CI_Controller {
         }else{
             redirect('GeneralInfo/loginPage');
         } 
-     }
+    }
+    // used by admin, zonal office to make summery report of all schools' library item status.
+    public function viewItemStatusAllSchools(){
+        if( is_logged_in() ){
+            if ( $this->input->post('btn_view_status') == "Show"  ){ 
+                $division = $this->input->post('edu_div_id_select');
+                $status = $this->input->post('status_select');
+                switch ( $status ) {
+                case 'w':
+                    $pageTitle = ' ක්‍රියාකාරී සංඛ්‍යාව '; // not used
+                    break;
+                case 'r':
+                    $pageTitle = 'සකස්කල හැකි ප්‍රමාණය'; // not used
+                    break;
+                case 'nr':
+                    $pageTitle = 'සකස්කල නොහැකි ප්‍රමාණය'; // not used
+                    break;
+                default:
+                    $pageTitle = 'තිබෙන ප්‍රමාණය ';
+                    break;
+                }
+                $result = $this->Library_model->view_item_status_details_all_schools( $division );
+                if( $result ){
+                    $data['title'] = 'පුස්තකාල අයිතම - '.$pageTitle;
+                    $data['all_schools'] = $this->School_model->view_all_schools($division);
+                    $data['all_schools_lib_info'] = $result;
+                    $data['status'] = $status;                    
+                    $data['user_header'] = 'user_admin_header';
+                    $data['user_content'] = 'library/viewLibrary';
+                    $this->load->view('templates/user_template', $data);
+                }else{
+                    $this->session->set_flashdata('msg', array('text' => 'No record found!','class' => 'alert alert-danger'));
+                    redirect('Library/viewDetails');                    
+                }
+            }else{
+                redirect('Library/viewDetails');                    
+            }
+        }else{
+            redirect('GeneralInfo/loginPage');
+        } 
+    }
 }

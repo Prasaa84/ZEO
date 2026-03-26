@@ -16,8 +16,8 @@
           <a href="<?php echo base_url(); ?>user">Dashboard</a>
         </li>
         <li class="breadcrumb-item">
-          <a href="<?php echo base_url(); ?>school">School</a>
-        </li>
+          <a href="<?php echo base_url(); ?>physicalResource/viewAddPhysicalResourcePage">Physical Resources</a>
+        </li>        
         <li class="breadcrumb-item active">Sanitary Information</li>
       </ol>
       <?php
@@ -65,11 +65,10 @@
                               echo $school_name;
                             }
                           }
-                    ?></h5>
+                    ?>
+                    </h5>
                   <h6 align="center">සනීපාරක්ෂක තොරතුරු</h6>
-                  <?php
-                    if(!empty($sanitary_info_by_census)) { ?>
-
+          <?php   if(!empty($sanitary_info_by_census)) { ?>
                   <div class="table-responsive">
                     <table id="dataTable" class="table table-striped table-hover" cellspacing="0">
                       <thead>
@@ -80,8 +79,8 @@
                           <th class="col-sm-3">භාවිතයට ගත හැකි ප්‍රමාණය</th>
                           <th class="col-sm-3">ප්‍රතිසංස්කරණය කළ හැකි ප්‍රමාණය</th>
                       <?php if(($role_id=='1') || ($role_id=='2')){ ?>
-                            <th class="col-sm-1"></th><th class="col-sm-1"></th>
-                          <?php } ?>
+                              <th class="col-sm-1"></th><th class="col-sm-1"></th>
+                      <?php } ?>
                         </tr>
                       </thead>
                       <tbody>
@@ -102,7 +101,7 @@
                           }
                           $no = $no + 1;  ?>
                         <tr>
-                          <th><?php echo $no; ?></th>
+                          <td><?php echo $no; ?></td>
                           <td style="vertical-align:middle;"><?php echo $item; ?></td>
                           <td style="vertical-align:middle" align="center"><?php echo $quantity; ?></td>
                           <td style="vertical-align:middle" align="center"><?php echo $usable; ?></td>
@@ -121,7 +120,7 @@
                       </tbody>
                     </table>
                   </div> <!-- /table-responsive -->
-                <?php } else{ 
+            <?php } else{  //if(!empty($sanitary_info_by_census)) {
                     if(($userrole=='School User') && empty($sanitary_info_by_census)){
                       echo '<h4 align="center">Add Records!!!</h4>'; 
                     }else if(($userrole=='Administrator') && empty($sanitary_info_by_census)){
@@ -130,11 +129,11 @@
                       echo '<h4 align="center">Search Details</h4>';
                     }
                   } ?>
-                </div>
-              </div> 
+                </div>  <!-- /col-lg-12 col-sm-12 -->
+              </div>  <!-- /row --> 
               <button id="btn_add_new_san_info" name="btn_add_new_san_info" type="button" class="btn btn-primary btn-sm" value="Add"  data-toggle="modal" data-target="#addNewSanitaryDetails" ><i class="fa fa-plus"></i> Add New</button>
               <?php 
-                if(!empty($sanitary_info_by_census)) {    ?>           
+                if( !empty($sanitary_info_by_census) ) {    ?>           
                   <a href="<?php echo base_url(); ?>ExcelExport/printSanitaryInfoByCensusId/<?php echo $census_id; ?>" id="btn_print_lib_res_details" name="btn_print_lib_res_details" type="button" class="btn btn-success btn-sm" ><i class="fa fa-print"></i> Save to Print </a>
               <?php } ?>
             </div> <!-- /card-body -->

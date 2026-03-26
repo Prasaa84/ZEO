@@ -1,4 +1,3 @@
-
 WWWAcct 12.6.0 (c) 2016 cPanel, Inc....
 
 Dns Zone check is enabled.
@@ -22,5 +21,61 @@ Dns Zone check is enabled.
 | Feature List: default
 | Language: en
 https://cpanel.denizone.sch.lk/
++===========+
+|SLT Server|
++===========+
+Contact - 0112399121
+Plesk Panel Login
+-----------------
+URL:  https://tux.sltidc.lk:8443
+User Name :   deniyaya_plesk
+Password  :   tAqp$941 -> V@ytq805
+ftp  Login
 
-:
+URL: MailScanner warning: numerical links are often malicious: ftp://222.165.190.229
+
+User Name      :  deniyaya_ftp
+Password         :  %Ijto328
+
+Please send the  following name server details to domain name registar to point DNS
+
+Primary name server   :    ns1.deniyayazeo.lk      A     222.165.190.229
+secondary name server :    ns2.deniyayazeo.lk      A     222.165.190.230
+
+SLT Shared Server Payments
+==========================
+Circuit ID 	- D46622
+Customer ID - CR004254159
+Account Manager (Who is handling the bill at SLT) - 0719702830
+
+Bank A/C to pay the bill - 004642309X 
+Data center - 0112381381
+IDC - 0112399121
+
+Database
+--------
+Username - deniyaya_plesk
+Password - old ->tAqp$941 new->V@ytq805
+
+domains.lk myaccount login
+-------------------------
+morawakazeo@gmail.com
+Denizone@2024
+
+deniyayazeo.lk test school account
+--------------
+school_user
+50000
+
+emorawakazeo@gmail.com
+======================
+morawakatest
+
+---------
+Cron Jobs
+---------
+1. birthday wishes email- http://deniyayazeo.lk/BirthDayMessage/sendBirthDayWishEmail
+			 sms	- http://deniyayazeo.lk/BirthDayMessage/sendBirthDayWishSms
+2. increment date email	- http://deniyayazeo.lk/increment/sendIncrementEmail
+			sms 	- http://deniyayazeo.lk/Increment/sendIncrementSms 
+			

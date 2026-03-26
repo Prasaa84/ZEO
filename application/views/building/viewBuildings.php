@@ -8,6 +8,9 @@
     }
   }
 ?>
+<style type="text/css">
+  th, td { white-space: nowrap; }
+</style>
 <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
@@ -16,7 +19,7 @@
           <a href="<?php echo base_url(); ?>user">Dashboard</a>
         </li>
         <li class="breadcrumb-item">
-          <a href="<?php echo base_url(); ?>school">School</a>
+          <a href="<?php echo base_url(); ?>physicalResource/viewAddPhysicalResourcePage">Physical Resources</a>
         </li>
         <li class="breadcrumb-item active">Buildings</li>
       </ol>
@@ -41,6 +44,11 @@
         </div> <!-- /.col-lg-12 col-sm-12 -->
       </div> <!-- / #search-bar-row -->
     <?php } ?>
+    <?php 
+      if(!empty($this->session->flashdata('error'))) {
+        $error = $this->session->flashdata('error');  ?>
+        <div class="alert alert-danger" ><?php echo $error; ?></div>
+    <?php   } ?> 
     <?php 
       if(!empty($this->session->flashdata('msg'))) {
         $message = $this->session->flashdata('msg');  ?>
@@ -90,6 +98,7 @@
                           <th class="col-sm-1">දිග (m)</th>
                           <th class="col-sm-1">පළල (m)</th>
                           <th class="col-sm-4">අධාර ලබාදුන් ආයතනය</th>
+                          <th class="col-sm-4">ඉදිකල වර්ෂය</th>
                       <?php if(($role_id=='1') || ($role_id=='2')){ ?>
                             <th class="col-sm-1"></th><th class="col-sm-1"></th>
                           <?php } ?>
@@ -110,6 +119,7 @@
                           $b_length = $row->length;
                           $b_width = $row->width;
                           $donatedby = $row->donated_by;
+                          $built_year = $row->built_year;
                           $update_dt = $row->last_update;
                           if($latest_upd_dt < $update_dt){
                             $latest_upd_dt = $update_dt;
@@ -123,6 +133,7 @@
                           <td style="vertical-align:middle" ><?php echo $b_length; ?></td>
                           <td style="vertical-align:middle" ><?php echo $b_width; ?></td>
                           <td style="vertical-align:middle" ><?php echo $donatedby; ?></td>
+                          <td style="vertical-align:middle" ><?php echo $built_year; ?></td>
                     <?php if(($role_id=='1') || ($role_id=='2')){ ?>
                             <td id="td_btn" style="vertical-align:middle">
                               <a href="<?php echo base_url(); ?>Building/editBuildingInfoPage/<?php echo $b_info_id; ?>" type="button" id="btn_edit_building_info" name="btn_edit_building_info" type="button" class="btn btn-info btn-sm btn_edit_phy_res" value="edit" title="Update this details" data-toggle="tooltip" data-hidden="" onclick="get(<?php echo $b_info_id; ?>)"><i class="fa fa-pencil"></i></a>
@@ -151,7 +162,7 @@
               <button id="btn_add_new_building_info" name="btn_add_new_building_info" type="button" class="btn btn-primary btn-sm" value="Add"  data-toggle="modal" data-target="#addNewBuildingInfo" ><i class="fa fa-plus"></i> Add New</button>
               <?php 
                 if(!empty($building_info_by_census)) {    ?>           
-                  <a href="<?php echo base_url(); ?>ExcelExport/printSanitaryInfoByCensusId/<?php echo $census_id; ?>" id="btn_print_lib_res_details" name="btn_print_lib_res_details" type="button" class="btn btn-success btn-sm" ><i class="fa fa-print"></i> Save to Print </a>
+                  <a href="<?php echo base_url(); ?>ExcelExport/printBuildingInfoByCensusId/<?php echo $census_id; ?>" id="btn_print_lib_res_details" name="btn_print_lib_res_details" type="button" class="btn btn-success btn-sm" ><i class="fa fa-print"></i> Save to Print </a>
               <?php } ?>
             </div> <!-- /card-body -->
             <div class="card-footer small text-muted">
@@ -409,6 +420,16 @@
                     <div class="form-group">
                       <div class="row">
                         <div class="col-lg-4 col-sm-4">
+                          <label for="donatedby">ඉදිකල වර්ෂය</label>
+                        </div>
+                        <div class="col-lg-8 col-sm-8">
+                          <input type="text" class="form-control datepicker" id="built_year_txt" name="built_year_txt" value="" />
+                        </div>
+                      </div> <!-- /row -->
+			              </div> <!-- /form group -->
+                    <div class="form-group">
+                      <div class="row">
+                        <div class="col-lg-4 col-sm-4">
                           <label for="donated by" class="control-label"></label>
                         </div>
                         <div class="col-lg-8 col-sm-8">
@@ -425,7 +446,7 @@
                             <label for="donated by" class="control-label" >ආධාර ලබාදුන් ආයතනය</label>
                           </div>
                           <div class="col-lg-8 col-sm-8">
-                            <input class="form-control" id="donated_by_txt" name="donated_by_txt" placeholder="--ඇතුළත් කරන්න--" type="text" value="" title="Please type donated institute" data-toggle="tooltip" />
+                            <input class="form-control" id="repaired_institute_txt" name="repaired_institute_txt" placeholder="--ඇතුළත් කරන්න--" type="text" value="" title="Please type donated institute" data-toggle="tooltip" />
                           </div>
                         </div> <!-- /row -->
                       </div> <!-- /form group -->
@@ -435,14 +456,14 @@
                             <label for="repaired date" class="control-label">අළුත්වැඩියා කළ දිනය</label>
                           </div>
                           <div class="col-lg-8 col-sm-8">
-                            <input class="form-control" id="repaired_date_txt" name="repaired_date_txt" placeholder="--ඇතුළත් කරන්න--" type="text" value="" title="" data-toggle="tooltip"/>
+                            <input class="form-control datepicker2" id="repaired_date_txt" name="repaired_date_txt" placeholder="--ඇතුළත් කරන්න--" type="text" value="" title="" data-toggle="tooltip"/>
                           </div>
                         </div> <!-- /row -->
                       </div> <!-- /form group -->
                       <div class="form-group">
                         <div class="row">
                           <div class="col-lg-4 col-sm-4">
-                            <label for="description" class="control-label">වෙනත් විස්තර</label>
+                            <label for="description" class="control-label">අළුත්වැඩියා විස්තර</label>
                           </div>
                           <div class="col-lg-8 col-sm-8">
                             <textarea class="form-control" rows="2" id="repaired_info_txtarea" name="repaired_info_txtarea"></textarea>
@@ -547,6 +568,7 @@
           </div> <!-- /#bootstrap model content -->
         </div> <!-- /#bootstrap model dialog -->
       </div> <!-- / .modal fade -->
+      <!-- / .below model used by admin to insert new usage -->
        <div class="modal fade" id="addNewUsage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -587,3 +609,19 @@
         </div> <!-- /#bootstrap model dialog -->
       </div> <!-- / .modal fade -->
     </div> <!-- /container-fluid -->
+<script type="text/javascript">
+	$(document).ready(function() {  
+		// date picker used pick the built year of building
+		$('.datepicker').datepicker({
+			dateFormat: 'yy',
+			changeYear: true,
+			yearRange:'1955:',
+		})
+    // date picker 2 used to pick the reperaired date of building
+		$('.datepicker2').datepicker({
+			dateFormat: 'yy-mm-dd',
+			changeYear: true,
+			yearRange:'1955:',
+		})
+	});
+</script>

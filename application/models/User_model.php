@@ -5,7 +5,7 @@ class User_model extends CI_Model{
         parent::__construct();
     }
 
-    //get the username & password from tbl_usrs
+    //get the username & password from tbl_users
     function get_user($usr, $pwd){
         $sql = "select * from user_tbl,user_role_tbl where username = '" . $usr . "' and password = '" . md5($pwd) . "' and status_id = 1 and user_tbl.is_deleted = 0";
         $query = $this->db->query($sql);
@@ -121,10 +121,12 @@ class User_model extends CI_Model{
         }
     }
     // change user role (admin/school user......)
-    function update_to_def_uname_pwd($user,$username,$password){
-        $this->db->set('username',$username);
-        $this->db->set('password',$password); 
-        $this->db->where('user_id',$user);
+    function update_to_def_uname_pwd($user_id, $username, $password){
+        $now = date('Y-m-d H:i:s');
+        $this->db->set('username', $username);
+        $this->db->set('password', $password); 
+        $this->db->set('date_updated', $now);
+        $this->db->where('user_id', $user_id);
         $this->db->update('user_tbl');        
         if($this->db->affected_rows() > 0){         
             return true; 
@@ -162,82 +164,41 @@ class User_model extends CI_Model{
     function add_user_act($data){ // insert user activity
         $this->db->insert('user_track_tbl', $data);
     }
-    // get user activity by user id
-    function view_user_log_by_user_id($user_id){
-        $this->db->select('*,utt.date_added as userlog_added_dt,utt.user_id');
-        $this->db->from('user_track_tbl utt');
-        $this->db->join('user_act_type_tbl uact','utt.act_type_id = uact.act_type_id','left');
-        $this->db->join('school_details_tbl sdt','utt.user_id = sdt.user_id','left');
-        $this->db->where('utt.user_id',$user_id);
-        $query = $this->db->get();
-        if ($query->num_rows() > 0) {
-            return $query->result();
-        } else {
-            return false;
-        }   
-    }
-    // get user activity by census id 
-    function view_user_log_by_census_id($census_id){
+
+    function get_user_log( $user_id='', $date1='', $date2='', $user_act='' ){
         $this->db->select('*,utt.date_added as userlog_added_dt,utt.user_id,sdt.census_id');
         $this->db->from('user_track_tbl utt');
         $this->db->join('user_act_type_tbl uact','utt.act_type_id = uact.act_type_id','left');
         $this->db->join('school_details_tbl sdt','utt.user_id = sdt.user_id','left');
-        $this->db->where('sdt.census_id',$census_id);
+        if( !empty($user_id) ){
+            $this->db->where('utt.user_id',$user_id);
+        }
+        if( !empty($user_act) ){
+            $this->db->where('utt.act_type_id',$user_act);
+        }
+        if( !empty($date1) && !empty($date2) ){
+            $date1 = date('Y-m-d', strtotime("-1 day", strtotime($date1))); // deduct one day because greater than is used below
+            $date2 = date('Y-m-d', strtotime("+1 day", strtotime($date2))); // add one day
+            $this->db->where('DATE(utt.date_added) <', $date2); // less than or equal is not working
+            $this->db->where('DATE(utt.date_added) >', $date1);
+        }elseif( !empty($date1) ){
+            $this->db->where('date(utt.date_added)',$date1);
+        }elseif( !empty($date2) ){
+            $this->db->where('date(utt.date_added)',$date2);
+        }
+        $this->db->order_by('utt.date_added','desc');
         $query = $this->db->get();
-        if ($query->num_rows() > 0) {
+        if ( $query->num_rows() > 0 ) {
             return $query->result();
         } else {
             return false;
         }   
     }
-    // get user activity by period
-    function view_user_log_by_period($from_dt,$to_dt){
-        $this->db->select('*,utt.date_added as userlog_added_dt,utt.user_id,sdt.census_id');
-        $this->db->from('user_track_tbl utt');
-        $this->db->join('user_act_type_tbl uact','utt.act_type_id = uact.act_type_id','left');
-        $this->db->join('school_details_tbl sdt','utt.user_id = sdt.user_id','left');
-        $this->db->where('utt.date_added >=',$from_dt);
-        $this->db->where('utt.date_added <=',$to_dt);        
-        $query = $this->db->get();
-        if ($query->num_rows() > 0) {
-            return $query->result();
-        } else {
-            return false;
-        }   
-    }
-    // get user activity by action
-    function view_user_log_by_action($user_act){
-        $this->db->select('*,utt.date_added as userlog_added_dt,utt.user_id,sdt.census_id');
-        $this->db->from('user_track_tbl utt');
-        $this->db->join('user_act_type_tbl uact','utt.act_type_id = uact.act_type_id','left');
-        $this->db->join('school_details_tbl sdt','utt.user_id = sdt.user_id','left');
-        $this->db->where('utt.act_type_id',$user_act);
-        $query = $this->db->get();
-        if ($query->num_rows() > 0) {
-            return $query->result();
-        } else {
-            return false;
-        }   
-    }
-    function view_user_log_by_date($date){
-        echo $date; die();
-        $this->db->select('*,utt.date_added as userlog_added_dt,utt.user_id,sdt.census_id');
-        $this->db->from('user_track_tbl utt');
-        $this->db->join('user_act_type_tbl uact','utt.act_type_id = uact.act_type_id','left');
-        $this->db->join('school_details_tbl sdt','utt.user_id = sdt.user_id','left');
-        $this->db->where('utt.date_added',$date);
-        $query = $this->db->get();
-        if ($query->num_rows() > 0) {
-            return $query->result();
-        } else {
-            return false;
-        }   
-    }
-    //check whether the email exists
+    //check whether the email exists when login recover email inserted in login view - forgot username or password?
     function check_email_exists($email){
         $this->db->select('*');
         $this->db->from('school_details_tbl');
-        $this->db->where('email',$email);
+        $this->db->where('email', $email);
         $this->db->limit(1);
         $query = $this->db->get();
         if ($query->num_rows() > 0) {
@@ -313,4 +274,19 @@ class User_model extends CI_Model{
             return false; 
         }
     }
+    // find divisional office id on user id to set default username and password of edu. divsional office
+    function get_edu_division($user_id){
+        $this->db->select('*');    
+        $this->db->from('user_tbl ut');
+        $this->db->join('edu_div_tbl edt', 'ut.div_id = edt.div_id' );
+        $this->db->where('ut.user_id', $user_id);
+        $this->db->limit(1);
+        $query = $this->db->get();
+        if ($query->num_rows() > 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    
 }

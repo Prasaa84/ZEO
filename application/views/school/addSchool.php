@@ -19,7 +19,12 @@
         if(!empty($this->session->flashdata('msg'))) {
           $message = $this->session->flashdata('msg');  ?>
           <div class="<?php echo $message['class']; ?>" ><?php echo $message['text']; ?></div>
-      <?php } ?>      
+      <?php } ?>   
+      <?php
+        if(!empty($this->session->flashdata('emailStatus'))) {
+          $message = $this->session->flashdata('emailStatus');  ?>
+          <div class="<?php echo $message['class']; ?>" ><?php echo $message['text']; ?></div>
+      <?php } ?>   
       <div class="row">
         <div class="col-lg-8">
           <!-- Example Bar Chart Card-->
@@ -84,46 +89,6 @@
                             <?php } ?>     
                           </select>
                           <span class="text-danger"><?php echo form_error('select_sch_type'); ?></span>
-                        </div>
-                      </div>
-                    </div> <!-- /form group -->
-                    <div class="form-group">
-                      <div class="row">
-                        <div class="col-lg-3 col-sm-3">
-                          <label for="txt_edudiv" class="control-label">අධ්‍යාපන කොට්ඨාසය</label>
-                        </div>
-                        <div class="col-lg-9 col-sm-9">
-                          <select class="form-control" id="select_edu_div" name="select_edu_div" title="Please select" data-toggle="tooltip">
-                            <option value="" selected>---ක්ලික් කරන්න---</option>
-                            <?php 
-                              if(!empty($this->all_edu_div)){
-                                foreach ($this->all_edu_div as $row){ ?><!-- from PhysicalResource controller constructor method -->
-                                <option value="<?php echo $row->edu_div_id; ?>"><?php echo $row->div_name; ?></option>
-                            <?php } }else{ ?>
-                                <option value="" selected>No records found!!!</option>
-                            <?php } ?>                                
-                          </select>
-                          <span class="text-danger"><?php echo form_error('select_edu_dev'); ?></span>
-                        </div>
-                      </div>
-                    </div> <!-- /form group -->
-                    <div class="form-group">
-                      <div class="row">
-                        <div class="col-lg-3 col-sm-3">
-                          <label for="gs_devision" class="control-label">ග්‍රාම නිළධාරී කොට්ඨාසය</label>
-                        </div>
-                        <div class="col-lg-9 col-sm-9">
-                          <select class="form-control" id="select_gs_div" name="select_gs_div" title="Please select" data-toggle="tooltip">
-                            <option value="" selected>---ක්ලික් කරන්න---</option>
-                            <?php 
-                              if(!empty($this->all_gs_div)){
-                                foreach ($this->all_gs_div as $row){ ?><!-- from PhysicalResource controller constructor method -->
-                                <option value="<?php echo $row->gs_div_id; ?>"><?php echo $row->gs_div_name; ?></option>
-                            <?php } }else{ ?>
-                                <option value="" selected>No records found!!!</option>
-                            <?php } ?>     
-                          </select>                          
-                          <span class="text-danger"><?php echo form_error('txt_gs_div'); ?></span>
                         </div>
                       </div>
                     </div> <!-- /form group -->

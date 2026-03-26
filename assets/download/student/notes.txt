@@ -1,0 +1,3 @@
+when you delete data in a row, you have to remove total row from the sheet. 
+Otherwise it is considered as a row with data, but there are no data.
+specially when you upload 'Students in Class' excel file. 

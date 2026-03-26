@@ -42,7 +42,8 @@
         </li>
         <li class="breadcrumb-item active">Student Information</li>
       </ol>
-      <?php
+      <?php //echo md5('07025'); ?>
+      <?php 
     if($role_id=='1'){  ?>  <!-- check for system admin login -->
       <div class="row" id="search-bar-row">     <!-- search bar is availabel for admin only -->
         <div class="col-lg-12 col-sm-12">
@@ -129,8 +130,8 @@
                           $index_no = $row->index_no;
                           $name_with_ini = $row->name_with_initials;
                           $census_id = $row->census_id;
-                          $grade = $row->grade_name;
-                          $class = $row->class_name;
+                          $grade = $row->grade;
+                          $class = $row->class;
                           $gender_id = $row->gender_id;
                           $gender_name = $row->gender_name;
                           $update_dt = $row->last_update;
@@ -331,10 +332,11 @@
                           <label for="new category" class="control-label">ශ්‍රේණිය </label>
                         </div>
                         <div class="col-lg-9 col-sm-9">
+                        <input type="hidden" name="census_id_hidden" id="census_id_hidden" value="<?php echo $census_id; ?>">
                           <select class="form-control" id="grade_select" name="grade_select">
                             <option value="" selected>---ක්ලික් කරන්න---</option>
                             <?php foreach ($this->all_grades as $row){ ?> <!-- from Building controller constructor method -->
-                              <option value="<?php echo $row->grade_id; ?>"><?php echo $row->grade_name; ?></option>
+                              <option value="<?php echo $row->grade_id; ?>"><?php echo $row->grade; ?></option>
                             <?php } ?>
                           </select>
                         </div>
@@ -348,9 +350,6 @@
                         <div class="col-lg-9 col-sm-9">
                           <select class="form-control" id="class_select" name="class_select">
                             <option value="" selected>---ක්ලික් කරන්න---</option>
-                            <?php foreach ($this->all_classes as $row){ ?> <!-- from Building controller constructor method -->
-                              <option value="<?php echo $row->class_id; ?>"><?php echo $row->class_name; ?></option>
-                            <?php } ?>
                           </select>
                         </div>
                       </div> <!-- /row -->
@@ -486,4 +485,26 @@
             select: true
         } );
       });
+  // ශ්‍රේණිය තෝරනවිට පන්තිය ලෝඩ් කිරීමට යොදා ගැනේ. 
+  $(document).on('change', '#grade_select', function(){  
+    var grade_id = $(this).val();
+    var $census_id = $('#census_id_hidden').val();
+    //alert($census_id);
+     $.ajax({  
+          url:"<?php echo base_url(); ?>SchoolClasses/viewClassesGradeWise",  
+          method:"POST",  
+          data:{grade_id:grade_id,census_id:$census_id},  
+          dataType:"json",  
+          success:function(classes)  
+          {  
+               $('select#class_select').html('');
+                $.each(classes, function(key,value) {
+                    $('select[name="class_select"]').append('<option value="'+ value.class_id +'">'+ value.class +'</option>');
+                }); 
+          }, 
+          error: function(xhr, status, error) {
+            alert(xhr.responseText);
+          } 
+     })  
+  });
   </script>

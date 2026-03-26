@@ -7,26 +7,15 @@ class PhysicalResource extends CI_Controller {
         parent::__construct();
         $this->load->model('School_model');
         $this->load->model('Physical_resource_model');
-        $this->recent_update_phy_res_dt = $this->view_recent_item_update_dt();
-        $this->recent_update_status_dt = $this->view_recent_status_update_dt();
         $this->all_items = $this->view_all_items(); // used to view all schools resource status
-        //print_r($this->view_all_status); die();       
         $this->all_status = $this->view_all_status();
-        //print_r($this->view_all_status); die();       
-        //$this->all_status_count = $this->view_all_status_count(); 
-        //print_r($this->all_status_count); die();       
         $this->all_schools = $this->view_all_schools(); // used to view all schools resource status
         $this->all_edu_divisions = $this->view_all_edu_divisions();
-        $this->count_sch_no_internet = $this->count_sch_no_internet(); // for bar chart in addPhysicalResourcePage
-        $this->count_sch_no_water = $this->count_sch_no_water(); // for bar chart in addPhysicalResourcePage
-        $this->count_sch_no_guidance = $this->count_sch_no_guidance(); // for bar chart in addPhysicalResourcePage
-        $this->count_sch_no_com_lab = $this->count_sch_no_com_lab(); // for bar chart in addPhysicalResourcePage
-        $this->count_sch_no_easthatic_unit = $this->count_sch_no_easthatic_unit(); // for bar chart in addPhysicalResourcePage
-        $this->phy_res_alert = $this->viewPhyResAlert(); // when user goes through pages view physical resource alerts, if available
+        //$this->phy_res_alert = $this->viewPhyResAlert(); // when user goes through pages view physical resource alerts, if available
     } 
     // view physical resource alerts
     // this is called by construct method
-    public function viewPhyResAlert(){ 
+    public function viewPhyResAlertfgfg(){ 
         if($this->session->userdata['userrole'] == 'School User'){
             $censusId = $this->session->userdata['census_id'];
             //$censusId = '07065';
@@ -174,16 +163,6 @@ class PhysicalResource extends CI_Controller {
             redirect('GeneralInfo/loginPage');
         } 
     }
-    // view last inserted date and time of physical resources
-    // this is called by construct method
-    public function view_recent_item_update_dt(){ 
-        return $this->Physical_resource_model->view_recent_item_update_dt();
-    }
-    // view last inserted date and time of physical resources status
-    // this is called by construct method
-    public function view_recent_status_update_dt(){ 
-        return $this->Physical_resource_model->view_recent_status_update_dt();
-    }
     // this method loaded by this construct method
     public function view_all_items(){ 
         return $this->Physical_resource_model->view_all_items();
@@ -203,31 +182,6 @@ class PhysicalResource extends CI_Controller {
     // this method loaded by this construct method to view available schools in db
     public function view_all_edu_divisions(){
         return $this->School_model->view_all_edu_divisions();
-    }
-    // this method loaded by this construct method to count schools by physical resource status
-    public function count_sch_no_internet(){
-        $catId = '13'; $statusId = '6';
-        return $this->Physical_resource_model->count_sch_by_phy_res_status($catId,$statusId);
-    }
-    // this method loaded by this construct method to count schools by physical resource status
-    public function count_sch_no_water(){
-        $catId = '14'; $statusId = '6';
-        return $this->Physical_resource_model->count_sch_by_phy_res_status($catId,$statusId);
-    }
-    // this method loaded by this construct method to count schools by physical resource status
-    public function count_sch_no_guidance(){
-        $catId = '16'; $statusId = '6';
-        return $this->Physical_resource_model->count_sch_by_phy_res_status($catId,$statusId);
-    }
-    // this method loaded by this construct method to count schools by physical resource status
-    public function count_sch_no_easthatic_unit(){
-        $catId = '29'; $statusId = '6';
-        return $this->Physical_resource_model->count_sch_by_phy_res_status($catId,$statusId);
-    }
-    // this method loaded by this construct method to count schools by physical resource status
-    public function count_sch_no_com_lab(){
-        $catId = '26'; $statusId = '6';
-        return $this->Physical_resource_model->count_sch_by_phy_res_status($catId,$statusId);
     }
     // Physical resource item update view 
     public function editItemLoadView(){ 

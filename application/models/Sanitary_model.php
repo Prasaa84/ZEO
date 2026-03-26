@@ -120,6 +120,35 @@ class Sanitary_model extends CI_Model{
             return false;
         }
     }
+      // used for header notifications, this will get which items to be updated for this year
+    function get_shortage_of_sanitary_details($census_id,$year){
+        $items = $this->get_count_all_sanitary_items(); // get number of items
+        if($items){
+            $this->db->select('*');
+            $this->db->from('sanitary_item_details_tbl sidt');
+            $this->db->where('sidt.census_id',$census_id)->where('year(sidt.date_updated)',$year);
+            $query = $this->db->get();
+            $details = $query->num_rows();
+            if($details < $items) {
+                // every school must have physical resource details equal to number of items
+                // other wise difference must be shown as a notification
+                return $items - $details;
+            } else {
+                return false;
+            }   
+        }
+    }
+     // used by get_shortage_of_com_lab_details() in this model
+    function get_count_all_sanitary_items(){
+        $this->db->select('*');
+        $this->db->from('sanitary_item_tbl');
+        $query = $this->db->get();
+        if ($query->num_rows() > 0) {
+            return $query->num_rows();
+        } else {
+            return false;
+        }
+    }
 }
 
 ?>

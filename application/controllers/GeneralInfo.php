@@ -6,6 +6,7 @@ class GeneralInfo extends CI_Controller {
 	public function __construct(){
 	      parent::__construct();
             $this->load->model('News_model');
+            $this->load->model('School_model');
 	}
 	public function contact(){
             $data['title'] = 'Contact Us';
@@ -18,17 +19,38 @@ class GeneralInfo extends CI_Controller {
             $this->load->view('templates/template', $data);
       }
       public function kotapolaDiv(){
-            $data['title'] = 'Kotapola education division';
+            $divId = 103;
+            $result = $this->School_model->view_school_data_by_division($divId);
+            if($result){
+                  $data['schools'] = $result;
+                  $data['title'] = 'Schools of Kotapola Division';
+            }else{
+                  $this->session->set_flashdata('msg', array('text' => 'No record found!','class' => 'alert alert-danger'));
+            }
             $data['content'] = 'general_info/kotapola_div';
             $this->load->view('templates/template', $data);
       }
       public function morawakaDiv(){
-            $data['title'] = 'Morawaka education division';
+            $divId = 101;
+            $result = $this->School_model->view_school_data_by_division($divId);
+            if($result){
+                  $data['schools'] = $result;
+                  $data['title'] = 'Schools of Morawaka Division';
+            }else{
+                  $this->session->set_flashdata('msg', array('text' => 'No record found!','class' => 'alert alert-danger'));
+            }
             $data['content'] = 'general_info/morawaka_div';
             $this->load->view('templates/template', $data);
       }
       public function pasgodaDiv(){
-            $data['title'] = 'Pasgoda education division';
+            $divId = 102;
+            $result = $this->School_model->view_school_data_by_division($divId);
+            if($result){
+                  $data['schools'] = $result;
+                  $data['title'] = 'Schools of Pasgoda Division';
+            }else{
+                  $this->session->set_flashdata('msg', array('text' => 'No record found!','class' => 'alert alert-danger'));
+            }
             $data['content'] = 'general_info/pasgoda_div';
             $this->load->view('templates/template', $data);
       }
@@ -77,8 +99,8 @@ class GeneralInfo extends CI_Controller {
             $latestNews = $this->News_model->get_all_news($limit);
             $limit = '';
             $newsAddedDate = $this->News_model->get_news_added_date(); // to make archive in the view
-            $data['title'] = 'News';
-            $data['heading'] = 'පසුගිය පුවත්';
+            $data['title'] = 'Recent News';
+            $data['heading'] = 'නවතම පුවත්';
             $data['news'] = $latestNews;
             $data['newsAddedDate'] = $newsAddedDate;     // data for archive       
             $data['content'] = 'general_info/news';

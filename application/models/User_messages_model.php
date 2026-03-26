@@ -18,25 +18,27 @@ class User_messages_model extends CI_Model{
             return false; 
         } 
     }
+    // used to view new message icon in notifications in user header
     public function get_new_message_count($condition){
         //$year = date("Y");
         $this->db->select('*');
         $this->db->from('message_tbl');
-        $this->db->where('is_read','0');
         if(!empty($condition)){
             $this->db->where($condition);
         }
-        $this->db->order_by('date_added');
+        $this->db->where('is_read','0'); // not read yet
         $query = $this->db->get();
         return $query->num_rows();
     }
+    // Used in UserMessages Controller -> index
+    // to view cards in messages->index view
     public function get_new_message_count_by_category($condition){
         //$year = date("Y");
         $this->db->select('mct.msg_category,count(mt.msg_cat_id) as msg_count');
         $this->db->from('message_tbl mt');
         $this->db->join('msg_category_tbl mct','mt.msg_cat_id = mct.msg_cat_id'); 
-        $this->db->where('is_read','0');
         $this->db->where($condition);
+        $this->db->where('is_read','0');
         $this->db->group_by('mt.msg_cat_id');
         $query = $this->db->get();
         if($query->num_rows() > 0){ 
@@ -45,14 +47,16 @@ class User_messages_model extends CI_Model{
             return false; 
         } 
     }
-    public function get_all_new_messages_by($condition){
+    // used to view all the messages when click on view all messages in user header message notification
+    // UserMessages Controller -> viewMessageNotifications
+    public function get_all_new_messages($condition){
         $this->db->select('*,mt.date_added as send_date');
         $this->db->from('message_tbl mt');
         $this->db->join('msg_category_tbl mct','mt.msg_cat_id = mct.msg_cat_id'); 
         $this->db->join('staff_tbl st','mt.stf_id = st.stf_id','left');
         $this->db->join('school_details_tbl sdt','mt.to_whom = sdt.census_id','left');
         $this->db->join('user_role_tbl urt','mt.to_whom = urt.role_id','left');
-        $this->db->where($condition);   
+        $this->db->where($condition);  
         //$this->db->where('mt.is_read','0'); 
         $this->db->order_by('mt.date_added','desc');  
         $query = $this->db->get();
@@ -89,6 +93,19 @@ class User_messages_model extends CI_Model{
         $this->db->set('is_read','1');
         $this->db->set('when_read',$now);
         $this->db->where('msg_id',$msg_id);
+        $this->db->update('message_tbl'); 
+        if($this->db->affected_rows() > 0){         
+            return true; 
+        }else{
+            return false; 
+        }
+    }
+    // used when reply to a message
+    function update_message_reply($msg_id, $by_whom){
+        $now = date('Y-m-d H:i:s');
+        $this->db->set('replied_by', $by_whom);
+        $this->db->set('replied_on', $now);
+        $this->db->where('msg_id', $msg_id);
         $this->db->update('message_tbl'); 
         if($this->db->affected_rows() > 0){         
             return true; 

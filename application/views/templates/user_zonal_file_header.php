@@ -1,0 +1,141 @@
+<?php
+  foreach($this->session as $user_data){
+    $userid = $user_data['userid'];
+    $userrole = $user_data['userrole'];
+    $role_id = $user_data['userrole_id'];
+    if($userrole=='School User'){
+      $school_name = $user_data['school_name'];
+      $census_id = $user_data['census_id'];
+    }
+  }
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <title><?php echo $title; ?></title>
+  <!-- Bootstrap core CSS-->
+  <link href="<?php echo base_url(); ?>assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <!-- Custom fonts for this template-->
+  <link href="<?php echo base_url(); ?>assets/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- Page level plugin CSS-->
+<!--   <link href="<?php echo base_url(); ?>assets/vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+ -->  
+ <link href="<?php echo base_url(); ?>assets/datatables/css/jquery.dataTables.min.css" rel="stylesheet">
+ <link href="<?php echo base_url(); ?>assets/datatables/css/buttons.dataTables.min.css" rel="stylesheet">
+  
+  <!-- Custom styles for this template-->
+  <link href="<?php echo base_url(); ?>assets/css/sb-admin.css" rel="stylesheet">
+  <!-- Sweet alert-->
+  <link href="<?php echo base_url(); ?>assets/css/sweetalert/sweetalert.css" rel="stylesheet">
+  <!-- Date picker-->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet" />
+  <link href="<?php echo base_url(); ?>assets/datepicker/css/datepicker.css" rel="stylesheet" type="text/css">
+  <!-- Custom CSS -->
+  <link href="<?php echo base_url(); ?>assets/css/admin_custom.css" rel="stylesheet">
+  <style type="text/css">
+    .dropdown-message{overflow:hidden;max-width:none;text-overflow:ellipsis}
+    //#navbarResponsive .nav-item{  margin-right:5px; }
+    #exampleAccordion{ line-height: 2px; }
+    #logout_btn:hover {
+      color: white;
+    }
+
+  </style>
+</head>
+
+<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+  <!-- Navigation-->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+    <a class="navbar-brand" href="<?php echo base_url(); ?>User">කලාප අධ්‍යාපන කාර්යාලය - දෙනියාය</a>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="<?php echo base_url(); ?>User">
+            <i class="fa fa-fw fa-dashboard" style="color:#FF8C00;"></i>
+            <span class="nav-link-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseComponents" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-building" style="color:#800080;"></i>
+            <span class="nav-link-text">School</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="collapseComponents">
+            <li>
+              <a href="<?php echo base_url(); ?>School/findSchoolPage">Search Schools</a>
+            </li>            
+          </ul>
+        </li> 
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Menu Levels">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseMulti7" data-parent="#exampleAccordion" >
+            <i class="fa fa-fw fa-child" style="color:#00ff12;"></i>
+            <span class="nav-link-text">Academic Staff</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="collapseMulti7">
+      <?php //if($role_id=='1'){ ?>
+              <li>
+                <a href="<?php echo base_url(); ?>Staff/staffReportsView">Reports</a>
+              </li>
+      <?php //} ?>
+          </ul>
+        </li>
+<!-- Academic staff salary increments -->        
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Menu Levels">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseMulti8" data-parent="#exampleAccordion" >
+            <i class="fa fa-fw fa-money" style="color:#FFC0CB;"></i>
+            <span class="nav-link-text">Salary Increments</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="collapseMulti8">
+            <li>
+              <a href="<?php echo base_url(); ?>Increment">View</a>
+            </li>
+            <li>
+              <a href="<?php echo base_url(); ?>Increment/viewIncrementReports">Reports</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Link">
+          <a class="nav-link" href="<?php echo base_url(); ?>User/UnmPwdChangeView">
+            <i class="fa fa-fw fa-dashboard" style="color:#FFFF00;"></i>
+            <span class="nav-link-text">User Settings</span>
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav sidenav-toggler">
+        <li class="nav-item">
+          <a class="nav-link text-center" id="sidenavToggler">
+            <i class="fa fa-fw fa-angle-left"></i>
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        
+        <li class="nav-item" id="header_welcome_user">
+          <a class="nav-link">
+            <?php 
+              foreach($this->session as $user_data){
+                if($user_data['userrole']=='School User'){
+                  echo $user_data['school_name'];
+                }else{
+                  echo 'Welcome ',$user_data['username'];
+                }
+              }
+            ?>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="modal" data-target="#exampleModal" id="logout_btn">
+            <i class="fa fa-fw fa-sign-out" style="color:#FF8C00;"></i>Logout</a>
+        </li>
+      </ul>
+    </div>
+  </nav>

@@ -26,7 +26,7 @@
           <a href="<?php echo base_url(); ?>user">Dashboard</a>
         </li>
         <li class="breadcrumb-item">
-          <a href="<?php echo base_url(); ?>increment">Increments</a>
+            <a href="<?php echo base_url(); ?>Increment">Increments</a>
         </li>
         <li class="breadcrumb-item active">New Salary Increments</li>
       </ol>
@@ -65,8 +65,11 @@
                           <th> Submit Date</th>
                           <th> Date updated </th>
                           <th></th>
-                  <?php   if($userrole=='System Administrator' || $userrole=='Divisional User'){ ?>
-                            <th></th><th></th>
+                  <?php   if( $role_id == '1' || $role_id == '7' || $role_id == '8' || $role_id == '9' ){ ?>
+                            <th></th>
+                  <?php   }  ?>
+                  <?php   if( $role_id == '1' || $role_id == '7' ){ ?>
+                            <th></th>
                   <?php   }  ?>
                         </tr>
                       </thead>
@@ -85,8 +88,10 @@
                           $defects = $row->defects;
                           $remarks = $row->remarks;
                           $date_added = $row->inc_date_added;
-                          $date_updated = $row->last_update;
-
+                          $update_dt = $row->last_update;
+                          if($latest_upd_dt < $update_dt){
+                            $latest_upd_dt = $update_dt;
+                          }
                           $no = $no + 1;  ?>
                         <tr id="<?php echo 'tbrow'.$inc_id; ?>">
                           <th><?php echo $no; ?></th>
@@ -95,17 +100,19 @@
                           <td style="vertical-align:middle" ><?php echo $inc_year; ?></td>
                           <td style="vertical-align:middle" ><?php echo $inc_status; ?></td>
                           <td style="vertical-align:middle" ><?php echo $date_added; ?></td>
-                          <td style="vertical-align:middle" ><?php echo $date_updated; ?></td>
+                          <td style="vertical-align:middle" ><?php echo $update_dt; ?></td>
                           <td style="vertical-align: middle;" align="center">
                             <a type="button" id="<?php echo $inc_id; ?>" name="btn_view_inc_status" type="button" class="btn btn-info btn-sm btn_edit_phy_res btn_view_inc_status_modal" value="<?php echo $stf_id; ?>" title="Click to see status" data-toggle="tooltip" data-hidden="" ><i class="fa fa-info"></i></a> 
                           </td>
-                  <?php   if($userrole=='System Administrator' || $userrole=='Divisional User'){ ?>
-                          <td>
-                            <a type="button" id="<?php echo $inc_id; ?>" id="btn_edit_inc_status" name="btn_edit_inc_status" type="button" class="btn btn-info btn-sm btn_edit_phy_res btn_edit_inc_status" value="<?php echo $stf_id; ?>" title="Click to edit" data-toggle="tooltip" data-hidden="" ><i class="fa fa-edit"></i></a>
-                          </td>
-                          <td>
-                            <a type="button" id="btn_delete_inc_status" name="btn_delete_inc_status" type="button" class="btn btn-info btn-sm btn_edit_phy_res btn_delete_inc_status" value="<?php echo $inc_id; ?>" title="Click to Delete" data-toggle="tooltip" data-hidden="" data-id="<?php echo $inc_id; ?>" ><i class="fa fa-trash"></i></a>
-                          </td>
+                  <?php   if( $role_id == '1' || $role_id == '7' || $role_id == '8' || $role_id == '9' ){ ?>
+                            <td>
+                              <a type="button" id="<?php echo $inc_id; ?>" id="btn_edit_inc_status" name="btn_edit_inc_status" type="button" class="btn btn-info btn-sm btn_edit_phy_res btn_edit_inc_status" value="<?php echo $stf_id; ?>" title="Click to edit" data-toggle="tooltip" data-hidden="" ><i class="fa fa-edit"></i></a>
+                            </td>
+                  <?php   } ?>
+                  <?php   if( $role_id == '1' || $role_id == '7' ){ ?>
+                            <td>
+                              <a type="button" id="btn_delete_inc_status" name="btn_delete_inc_status" type="button" class="btn btn-info btn-sm btn_edit_phy_res btn_delete_inc_status" value="<?php echo $inc_id; ?>" title="Click to Delete" data-toggle="tooltip" data-hidden="" data-id="<?php echo $inc_id; ?>" ><i class="fa fa-trash"></i></a>
+                            </td>
                   <?php   } ?>
                         </tr>
                   <?php } // end foreach ?>
@@ -124,11 +131,16 @@
               </div> <!-- /col-lg-12 -->
             </div>  <!-- /row -->
           </div> <!-- /card body -->
-            <div class="card-footer small text-muted">
-              <?Php 
-                
-              ?>
-            </div>
+          <div class="card-footer small text-muted">
+            <?php 
+              if(!empty($latest_upd_dt)) { 
+                $latest_upd_dt = strtotime($latest_upd_dt);
+                $update_dt = date("j F Y",$latest_upd_dt);
+                $update_tm = date("h:i A",$latest_upd_dt);
+                echo 'Updated on '.$update_dt.' at '.$update_tm;
+              }
+            ?>
+          </div>
           </div>
         </div>
         
@@ -204,7 +216,7 @@
                             <option value="" selected>---Click here---</option>
                               <?php 
                                 $current_year = date('Y');
-                                foreach (range(2010, $current_year) as $value){ ?>
+                                foreach (range($current_year, 2019) as $value){ ?>
                                   <option value="<?php echo $value; ?>"><?php echo $value; ?></option>
                               <?php } ?>
                           </select>
@@ -219,9 +231,29 @@
                         <div class="col-lg-8 col-sm-8">
                           <select class="form-control" id="increment_status_select" name="increment_status_select">
                             <option value="" selected>---Click here---</option>
-                              <?php foreach ($this->all_increment_status as $row){ ?> <!-- from Staff controller constructor method -->
-                                <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
-                              <?php } ?>
+                    <?php     foreach ( $this->all_increment_status as $row ){ 
+                                if( $role_id == 7 ){
+                                  //if( $row->inc_status_id==1 || $row->inc_status_id==2 || $row->inc_status_id==3 ){
+                                  if( $row->inc_status_id==1  ){ ?>
+                                    <option value="<?php echo $row->inc_status_id; ?>" selected><?php echo $row->inc_status; ?></option>
+                    <?php         }  
+
+                                }
+                                if( $role_id == 8 ){
+                                  if( $row->inc_status_id==4 || $row->inc_status_id==5 ){
+                    ?>
+                                    <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
+                    <?php         }   ?> 
+
+                    <?php       }  
+                                if( $role_id == 9 ){
+                                  if( $row->inc_status_id==5 || $row->inc_status_id==6 ){
+                    ?>
+                                    <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
+                    <?php         }   ?> 
+
+                    <?php       } 
+                              } ?>
                           </select>
                           <span class="text-danger"><?php echo form_error('increment_status_select'); ?></span>
                         </div>
@@ -233,7 +265,7 @@
                           <label for="sms status" class="control-label"> Submitted date </label>
                         </div>
                         <div class="col-lg-8 col-sm-8">
-                          <input class="form-control datepicker" id="submit_dt_txt" name="submit_dt_txt" placeholder="" type="text" value="" />
+                          <input class="form-control datepicker" id="submit_dt_txt" name="submit_dt_txt" placeholder="" type="text" value="<?php echo date('Y-m-d'); ?>" readonly />
                         </div>
                       </div> <!-- /row -->
                     </div> <!-- /form group --> 
@@ -351,9 +383,29 @@
                         <div class="col-lg-8 col-sm-8">
                           <select class="form-control" id="inc_status_select_upd" name="inc_status_select_upd">
                             <option value="" selected>---Click here---</option>
-                              <?php foreach ($this->all_increment_status as $row){ ?> <!-- from Staff controller constructor method -->
-                                <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
-                              <?php } ?>
+                    <?php     foreach ( $this->all_increment_status as $row ){ 
+                                if( $role_id == 7 ){
+                                  if( $row->inc_status_id==1 || $row->inc_status_id==2 || $row->inc_status_id==3 ){
+                    ?>
+                                    <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
+                    <?php         }   ?> 
+
+                    <?php       }else 
+                                if( $role_id == 8 ){
+                                  if( $row->inc_status_id==3 || $row->inc_status_id==4 || $row->inc_status_id==5 ){
+                    ?>
+                                    <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
+                    <?php         }   ?> 
+
+                    <?php       }else  
+                                if( $role_id == 9 ){
+                                  if( $row->inc_status_id==5 || $row->inc_status_id==6 ){
+                    ?>
+                                    <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
+                    <?php         }   ?> 
+
+                    <?php       } 
+                              } ?>
                           </select>
                           <span class="text-danger"><?php echo form_error('increment_status_select'); ?></span>
                         </div>
@@ -399,7 +451,7 @@
               </div> <!-- /row -->
             </div> <!-- /modal-body -->
             <div class="modal-footer">
-              <button class="btn btn-primary" type="submit" name="btn_edit_increment" id="btn_edit_increment" value="Update"> Add </button>
+              <button class="btn btn-primary" type="submit" name="btn_edit_increment" id="btn_edit_increment" value="Update"> Update </button>
               <button class="btn btn-secondary" type="button" data-dismiss="modal" >Cancel</button>
             </div> <!-- /modal-footer -->
             </fieldset>
@@ -512,8 +564,10 @@
         }
         // date picker
         $('.datepicker').datepicker({
-          format: 'yyyy-mm-dd',
-          endDate: new Date()
+          dateFormat: 'yy-mm-dd',
+          changeYear: true,
+          yearRange:'1955:',
+			    maxDate: 0
         })
         // empty field validation when insert new increment form
         $("#insert_new_increment_form").submit(function(){

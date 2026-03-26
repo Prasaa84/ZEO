@@ -8,7 +8,9 @@
       	<!-- Breadcrumbs-->
     	<ol class="breadcrumb">
         	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>user">Dashboard</a></li>
-        	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>school">School</a></li>
+	        <li class="breadcrumb-item">
+	          <a href="<?php echo base_url(); ?>physicalResource/viewAddPhysicalResourcePage">Physical Resources</a>
+	        </li>        	
         	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>Building/viewDetails">Buildings</a></li>
         	<li class="breadcrumb-item active">Building Details Update</a></li>
       	</ol>
@@ -30,6 +32,7 @@
 			 			$usage_id = $row->b_usage_id;
 			 			$usage = $row->b_usage;
 			 			$donatedby = $row->donated_by;
+			 			$built_year = $row->built_year;
 			 			$date_added = $row->details_date_added;	
 			 			$date_updated = $row->details_date_updated;
  					}
@@ -113,6 +116,16 @@
 			                    					<div class="col-lg-9 col-sm-9">
 														<input type="text" class="form-control" id="donatedby_txt" name="donatedby_txt" value="<?php echo $donatedby; ?>" />
 			                    					</div>
+			                    				</div> <!-- /row -->
+			                    			</div> <!-- /form group -->
+											<div class="form-group">
+			                    				<div class="row">
+			                    					<div class="col-lg-3 col-sm-3">
+			                    						<label for="donatedby">ඉදිකල වර්ෂය</label>
+			                    					</div>
+			                    					<div class="col-lg-9 col-sm-9">
+														<input type="text" class="form-control datepicker" id="built_year_txt" name="built_year_txt" value="<?php echo $built_year; ?>" />
+													</div>
 			                    				</div> <!-- /row -->
 			                    			</div> <!-- /form group -->
 			                    			<div class="form-group">
@@ -205,3 +218,13 @@
         </div> <!-- /#bootstrap model dialog -->
       </div> <!-- / .modal fade -->
 	</div> <!-- /container-fluid -->
+<script type="text/javascript">
+	$(document).ready(function() {  
+		// date picker
+		$('.datepicker').datepicker({
+			dateFormat: 'yy',
+			changeYear: true,
+			yearRange:'1955:',
+		})
+	});
+</script>

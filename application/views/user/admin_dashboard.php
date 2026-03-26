@@ -1,79 +1,111 @@
-    <script src="<?php echo base_url(); ?>assets/vendor/jquery/jquery.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/vendor/chart.js/Chart.min.js"></script>
-    <script type="text/javascript">
-    $( document ).ready(function() {    
-      ctx=document.getElementById("noOfSchoolsPieChart"),
-      noOfSchoolsPieChart = new Chart(ctx,{
-        type:"pie",
-        data:{
-          labels:["ජාතික පාසල්","1AB පාසල්","1C පාසල්","2 වර්ගයේ පාසල්","3 වර්ගයේ පාසල්"],
-          datasets:[{
-            data:[
-              <?php 
-                echo $this->no_of_national_schools.',';   // no of national schools is first value
-                foreach ($this->count_schools_by_type as $row) { // then other type of schools
-                  echo $row->count.',';         // data is needed this way -> [10,20,30,40]
-                }              
-              ?>
-            ],
-            backgroundColor:["#007bff","#dc3545","#ffc107","#28a745","#28a7aa"]
-          }]
-        }
-      });
-      // -- Bar Chart Example
-      var ctx = document.getElementById("noOfSchoolsBarChart1");
-      var myLineChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ["National", "1AB", "1C", "2", "3"],
-          datasets: [{
-            label: "Revenue",
-            backgroundColor: "rgba(2,117,216,1)",
-            borderColor: "rgba(2,117,216,1)",
-            data: [3, 15, 16, 18, 19],
-          }],
-        },
-        options: {
-          scales: {
-            xAxes: [{
-              time: {
-                unit: 'month'
-              },
-              gridLines: {
-                display: false
-              },
-              ticks: {
-                maxTicksLimit: 6
-              }
-            }],
-            yAxes: [{
-              ticks: {
-                min: 0,
-                max: 50,
-                maxTicksLimit: 5
-              },
-              gridLines: {
-                display: true
-              }
+  <script src="<?php echo base_url(); ?>assets/vendor/jquery/jquery.min.js"></script>
+  <script src="<?php echo base_url(); ?>assets/vendor/chart.js/Chart.min.js"></script>    
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js" type="text/javascript"></script>  -->
+  <?php
+    foreach($this->session as $user_data){
+      $userid = $user_data['userid'];
+      $userrole = $user_data['userrole'];
+      $role_id = $user_data['userrole_id'];
+      if($userrole=='School User'){
+        //$school_name = $user_data['school_name'];
+      }
+    }
+  ?>
+  <script type="text/javascript">
+    $( document ).ready(function() { 
+      Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+      Chart.defaults.global.defaultFontColor = '#292b2c'; 
+<?php if($role_id != 2){  ?>
+        // schools count devision wise (කොට්ඨාස අනුව)
+        var cData = JSON.parse(`<?php echo $this->count_schools_by_devision; ?>`);  
+        var total_schools = 0;
+        for (i = 0; i < cData.sch_count.length; ++i) {
+          total_schools = total_schools + parseInt(cData.sch_count[i]);  
+        }   
+        $('#total_schools_span').html(total_schools);
+        var ctx = document.getElementById("noOfSchoolsDevisionWisePieChart");
+        var myPieChart = new Chart(ctx, {
+          type:"pie",
+          data:{
+            //labels:["ජාතික පාසල්","1AB පාසල්","1C පාසල්","2 වර්ගයේ පාසල්","3 වර්ගයේ පාසල්"],
+            labels: cData.division,
+            datasets:[{
+              data: cData.sch_count,
+              backgroundColor:["#007bff","#dc3545","#ffc107"],
             }],
           },
-          legend: {
-            display: false
-          }
-        }
+        });
+        // Schoool count type wise (1AB,1C....)
+        var cData = JSON.parse(`<?php echo $this->count_schools_by_type; ?>`);  
+        var ctx = document.getElementById("noOfSchoolsTypeWisePieChart");
+        var myPieChart = new Chart(ctx, {
+          type:"pie",
+          data:{
+            labels: cData.sch_type,
+            datasets:[{
+              data: cData.sch_count,
+              backgroundColor:["#007bff","#dc3545","#ffc107","#28a745"],
+            }],
+          },
+        });
+        // schools count national or provincial wise 
+        var cData = JSON.parse(`<?php echo $this->count_schools_by_belongsTo; ?>`);  
+        var ctx = document.getElementById("noOfSchoolsProAndNationalWisePieChart");
+        var myPieChart = new Chart(ctx, {
+          type:"pie",
+          data:{
+            labels: cData.div_name,
+            datasets:[{
+              data: cData.sch_count,
+              backgroundColor:["#007bff","#dc3545","#ffc107"],
+            }],
+          },
+        });
+<?php }  ?>
+      // staff count gender wise (if user is not school, count of all the staff in the zone)
+      var cData = JSON.parse(`<?php echo $this->all_academic_staff_count_genderwise; ?>`);  
+      //alert(cData.stf_count); // 152,535
+      var total_staff = 0;
+      //alert(cData.stf_count.length); // 2 (male and female)
+      for (i = 0; i < cData.stf_count.length; ++i) {
+        total_staff = total_staff + parseInt(cData.stf_count[i]);  
+      } 
+      //alert(total_staff)  // 687
+      $('#total_staff_span').html(total_staff);
+      var ctx = document.getElementById("pieChartTotalStaffGenderWise");
+      var myPieChart = new Chart(ctx, {
+        type:"pie",
+        data:{
+          labels: cData.gender,
+          datasets:[{
+            data: cData.stf_count,
+            backgroundColor:["#007bff","#dc3545"],
+          }],
+        },
       });
-    })
+      // student count gender wise (if user is not school, count of all the students in the zone)
+      var cData = JSON.parse(`<?php echo $this->all_student_count_genderwise; ?>`);  
+      //alert(cData.std_count); // 152,535
+      var total_student = 0;
+      //alert(cData.stf_count.length); // 2 (male and female)
+      for (i = 0; i < cData.std_count.length; ++i) {
+        total_student = total_student + parseInt(cData.std_count[i]);  
+      } 
+      //alert(total_staff)  // 687
+      $('#total_student_span').html(total_student);
+      var ctx = document.getElementById("pieChartTotalStudentsGenderWise");
+      var myPieChart = new Chart(ctx, {
+        type:"pie",
+        data:{
+          labels: cData.gender,
+          datasets:[{
+            data: cData.std_count,
+            backgroundColor:["#007bff","#dc3545"],
+          }],
+        },
+      });
+    });
   </script>
-  <?php
-  foreach($this->session as $user_data){
-    $userid = $user_data['userid'];
-    $userrole = $user_data['userrole'];
-    $role_id = $user_data['userrole_id'];
-    if($userrole=='School User'){
-      //$school_name = $user_data['school_name'];
-    }
-  }
-?>
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
@@ -85,266 +117,192 @@
         <?php //echo $this->session->userdata['userrole_id']; 
               //print_r($this->session->all_userdata());
         ?>
-
       </ol>
       <!-- Icon Cards-->
       <div class="row">
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-primary o-hidden h-100">
+        <div class="col-xl-2 col-sm-3 mb-2">
+          <div class="card text-white bg-primary o-hidden h-80">
             <div class="card-body">
               <div class="card-body-icon">
                 <i class="fa fa-fw fa-comments"></i>
               </div>
-              <div class="mr-5"><?php echo $this->new_msg_count; ?> New Messages!</div>
+              <div class="mr-5">Messages!</div>
+              <h2><?php echo $this->new_msg_count; ?> </h2>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>UserMessages">
+<!--             <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>UserMessages">
               <span class="float-left">View Details</span>
               <span class="float-right">
                 <i class="fa fa-angle-right"></i>
               </span>
-            </a>
+            </a> -->
           </div><!-- /Card Messages-->
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-warning o-hidden h-100">
+<?php if( $role_id != 2 ){ ?>
+        <div class="col-xl-2 col-sm-3 mb-2">
+          <div class="card text-white bg-warning o-hidden h-80">
             <div class="card-body">
               <div class="card-body-icon">
                 <i class="fa fa-fw fa-building"></i>
               </div>
               <div class="mr-5">Schools</div>
+              <h2><?php echo $this->all_schools_count;  ?></h2>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>school">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
           </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-danger o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-bar-chart"></i>
-              </div>
-              <div class="mr-5">School Staff</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>Staff">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-success o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-bar-chart"></i>
-              </div>
-              <div class="mr-5">Zonal Staff</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-success o-hidden h-100">
+<?php } ?>
+        <div class="col-xl-2 col-sm-3 mb-2">
+          <div class="card text-white bg-success o-hidden h-80">
             <div class="card-body">
               <div class="card-body-icon">
                 <i class="fa fa-fw fa-child"></i>
               </div>
               <div class="mr-5">Students</div>
+              <h2><?php echo $this->all_students_count; ?></h2>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>student">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
           </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-info o-hidden h-100">
+        <div class="col-xl-2 col-sm-3 mb-2">
+          <div class="card text-white bg-danger o-hidden h-80">
+            <div class="card-body">
+              <div class="card-body-icon">
+                <i class="fa fa-fw fa-users"></i>
+              </div>
+              <div class="mr-5">Ac. Staff</div>
+              <h2><?php echo $this->all_ac_staff_count; ?></h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-sm-3 mb-2">
+          <div class="card text-white bg-info o-hidden h-80">
             <div class="card-body">
               <div class="card-body-icon">
                 <i class="fa fa-fw fa-bar-chart"></i>
               </div>
-              <div class="mr-5">Student Term Test Marks</div>
+              <div class="mr-5">Term Test</div>
+              <h2><?php echo '10%'; ?></h2>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
+            <!-- <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>Marks">
               <span class="float-left">View Details</span>
               <span class="float-right">
                 <i class="fa fa-angle-right"></i>
               </span>
-            </a>
+            </a> -->
           </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="col-xl-2 col-sm-3 mb-2">
           <div class="card text-white bg-warning o-hidden h-100">
             <div class="card-body">
               <div class="card-body-icon">
-                <i class="fa fa-fw fa-bar-chart"></i>
+                <i class="fa fa-fw fa-building"></i>
               </div>
-              <div class="mr-5">Student Exam Results</div>
+              <div class="mr-5">Resources</div>
+              <h2><?php echo '5%'; ?></h2>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
+            <!-- <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>physicalResource/viewAddPhysicalResourcePage">
               <span class="float-left">View Details</span>
               <span class="float-right">
                 <i class="fa fa-angle-right"></i>
               </span>
-            </a>
+            </a> -->
           </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-black bg-secondary o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-bar-chart"></i>
-              </div>
-              <div class="mr-5">News and Events</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>news">
-              <span class="float-left text-dark">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-      <?php if($role_id==1){ ?> <!-- if the user is only admin-->
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-danger o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-bar-chart"></i>
-              </div>
-              <div class="mr-5">User Track</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>User/viewUsers">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-dark o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-bar-chart"></i>
-              </div>
-              <div class="mr-5">Backup and Restore DB</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-      <?php } ?>
-      <!-- Account settings available for all users-->
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-dark o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-bar-chart"></i>
-              </div>
-              <div class="mr-5">Account Settings</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>User/UnmPwdChangeView"">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-        <!-- Salary increment messages -->
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-dark o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-bar-money"></i>
-              </div>
-              <div class="mr-5">Salary Increment Notices</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>Increment/index"">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
+<?php //echo $this->session->userdata['userrole']; ?>
       </div><!-- /row1-->
-      <?php 
-        $ci =& get_instance();
-        $loginuser = $ci->session->userdata('loginuser'); // echo $loginuser; ?>
-      <?php if(($role_id!=1) && ($role_id!=2)){ ?> <!-- if the user is only admin-->
+<?php if($this->session->userdata['userrole'] != 'School User'){ ?>
       <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-4">
           <!-- Example Bar Chart Card-->
           <div class="card mb-3">
             <div class="card-header">
-              <i class="fa fa-bar-chart"></i> Number of Schools</div>
+              <i class="fa fa-bar-chart"></i> කොට්ටාසය අනුව මුළු පාසල් ප්‍රමාණය - 
+              <span id="total_schools_span"></span>
+            </div>
             <div class="card-body">
               <div class="row">
                 <div class="col-sm-12 my-auto">
-                  <canvas id="noOfSchoolsBarChart1" width="100" height="50"></canvas>
+                  <canvas id="noOfSchoolsDevisionWisePieChart" width="100" height="60"></canvas>
                 </div>
-                <!-- <div class="col-sm-4 text-center my-auto">
-                  <div class="h4 mb-0 text-primary">$34,693</div>
-                  <div class="small text-muted">YTD Revenue</div>
-                  <hr>
-                  <div class="h4 mb-0 text-warning">$18,474</div>
-                  <div class="small text-muted">YTD Expenses</div>
-                  <hr>
-                  <div class="h4 mb-0 text-success">$16,219</div>
-                  <div class="small text-muted">YTD Margin</div>
-                </div> -->
               </div>
             </div>
-            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+            <div class="card-footer small text-muted">
+             
+            </div>
           </div>
-        </div><!-- /col-lg-8-->
+        </div><!-- /col-lg-4 -->
         <div class="col-lg-4">
           <!-- Example Pie Chart Card-->
           <div class="card mb-3">
             <div class="card-header">
-              <i class="fa fa-pie-chart"></i> Number of Schools 
+              <i class="fa fa-pie-chart"></i> පාසල් වර්ගීකරණය
             </div>
             <div class="card-body">
-              <canvas id="noOfSchoolsPieChart" width="100%" height="100">
+              <canvas id="noOfSchoolsTypeWisePieChart" width="100" height="60">
                 <!-- the pie chart is displayed here -->
               </canvas>
             </div>
             <div class="card-footer small text-muted">
-            <?php 
 
-              foreach($this->recent_update_dt_school as $row){
-                $recent_update_dt_school = $row['date_updated'];
-              }
-              //view database updated date and time
-              $last_update_dt = strtotime($recent_update_dt_school);
-              $sch_last_updated_on_date = date("j F Y",$last_update_dt);
-              $sch_last_updated_on_time = date("h:i A",$last_update_dt);
-              echo 'Updated on '.$sch_last_updated_on_date.' at '.$sch_last_updated_on_time;
-            ?>
+            </div>
+          </div>
+        </div><!-- /col-lg-4-->
+        <div class="col-lg-4">
+          <!-- Example Pie Chart Card-->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa fa-pie-chart"></i> ජාතික සහ පලාත් පාසල් ප්‍රමාණය 
+            </div>
+            <div class="card-body">
+              <canvas id="noOfSchoolsProAndNationalWisePieChart" width="100" height="60">
+                <!-- the pie chart is displayed here -->
+              </canvas>
+            </div>
+            <div class="card-footer small text-muted">
+
             </div>
           </div>
         </div><!-- /col-lg-4-->
       </div><!-- /row2-->
-<?php } ?>
-              <?php //echo md5('assdirector'); ?>
+<?php   } ?>
+<?php   //if($this->session->userdata['userrole'] == 'School User'){ ?>
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa fa-pie-chart"></i>     
+        <?php   if($this->session->userdata['userrole'] == 'School User'){ 
+                  echo 'සියළුම අධ්‍යයන කාර්ය මණ්ඩලය - '; 
+                }else{ echo 'කලාපය තුළ සියළුම අධ්‍යයන කාර්ය මණ්ඩලය - '; }
+        ?>
+              <span id="total_staff_span"></span>
+            </div>
+            <div class="card-body">
+              <canvas id="pieChartTotalStaffGenderWise" width="100" height="60"></canvas>
+            </div>
+            <div class="card-footer small text-muted" id="">
+
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa fa-pie-chart"></i>     
+        <?php   if($this->session->userdata['userrole'] == 'School User'){ 
+                  echo 'සියළුම ළමුන් සංඛ්‍යාව  - '; 
+                }else{ echo 'කලාපය තුළ සිටින සියළුම ළමුන් සංඛ්‍යාව - '; }
+        ?>
+              <span id="total_student_span"></span>
+            </div>
+            <div class="card-body">
+              <canvas id="pieChartTotalStudentsGenderWise" width="100" height="60"></canvas>
+            </div>
+            <div class="card-footer small text-muted" id="">
+
+            </div>
+          </div>
+        </div>
+      </div><!-- /row2-->
+              <?php // }//echo md5('07001'); ?>
     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->

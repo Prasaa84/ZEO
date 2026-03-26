@@ -16,6 +16,7 @@ class Building_model extends CI_Model{
         $this->db->join('building_category_tbl','building_category_floor_tbl.b_cat_id = building_category_tbl.b_cat_id');
         $this->db->join('building_floor_tbl','building_category_floor_tbl.b_floor_id = building_floor_tbl.b_floor_id');
         $this->db->where('bit.census_id',$census_id);
+        $this->db->order_by('bit.date_updated','desc');
         $query = $this->db->get();
         if ($query->num_rows() > 0) {
             return $query->result();
@@ -161,7 +162,7 @@ class Building_model extends CI_Model{
             return false;
         }
     }
-    // view details according to building information id 
+    // view details according to building information id. used to update building info individually by admin or school
     function view_building_info_by_id($id){ 
         $this->db->select('*,bit.date_added as details_date_added,bit.date_updated as details_date_updated');
         $this->db->from('building_info_tbl bit');
@@ -218,6 +219,37 @@ class Building_model extends CI_Model{
             return false;
         }
     }
+    // used for header notifications, this will get which items to be updated for this year
+    // This function not used yet, since can't have a count of all buildings belong to a school
+    function get_shortage_of_building_details($census_id,$year){
+        $items = $this->get_count_all_building(); // get number of items
+        if($items){
+            $this->db->select('*');
+            $this->db->from('building_info_tbl bit');
+            $this->db->where('bit.census_id',$census_id)->where('year(bit.date_updated)',$year);
+            $query = $this->db->get();
+            $details = $query->num_rows();
+            if($details < $items) {
+                // every school must have physical resource details equal to number of items
+                // other wise difference must be shown as a notification
+                return $items - $details;
+            } else {
+                return false;
+            }   
+        }
+    }
+    // used by get_shortage_of_com_lab_details() in this model
+    /*function get_count_all_building(){
+        $this->db->select('*');
+        $this->db->from('building_info_tbl');
+        $query = $this->db->get();
+        if ($query->num_rows() > 0) {
+            return $query->num_rows();
+        } else {
+            return false;
+        }
+
+    }*/
 }
 
 ?>

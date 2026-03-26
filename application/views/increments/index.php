@@ -11,17 +11,26 @@
           dataType:"json",  
           success:function(data)  
           {  
-               $('#viewSmsStatus').modal('show');  
-               $('#id_txt').val(data.tr_inc_inform_id);  
-               $('#inc_year_txt').val(data.increment_year); 
-               if(data.sms_sent==1){
-                  $('#sms_status_txt').val('Sent');  
-               }else{
-                  $('#sms_status_txt').val('Not sent');  
-               }
-               $('#remarks_txtarea').val(data.remarks); 
-               $('#sent_date_txt').val(data.sms_sent_date);  
-               $('.modal-title').text("SMS Status");  
+            $('#viewSmsStatus').modal('show');  
+            $('#id_txt').val(data.tr_inc_inform_id);  
+            $('#inc_year_txt').val(data.increment_year); 
+            if( data.email_sent == 1 ){
+              $('#emal_status_txt').val('Yes').css('color','green');  
+              $('#email_sent_date_txt').val(data.email_sent_date); 
+            }else{
+              $('#emal_status_txt').val('No').css('color','red');  
+              $('#email_sent_date_txt').val(''); 
+            }
+            $('#email_info_txtarea').val(data.email_info); 
+            if( data.sms_sent == 1 ){
+              $('#sms_status_txt').val('Yes').css('color','green');  
+              $('#sms_sent_date_txt').val(data.sms_sent_date);  
+            }else{
+              $('#sms_status_txt').val('No').css('color','red');  
+              $('#sms_sent_date_txt').val('');  
+            }
+            $('#sms_info_txtarea').val(data.sms_info); 
+            $('.modal-title').text("SMS Status");  
           }, 
           error: function(xhr, status, error) {
             alert(xhr.responseText);
@@ -101,11 +110,11 @@
   // display increment status of a teacher through a bootstrap modal
   $(document).on('click', '#btn_find_inc_status', function(){
      var nic_no = $('#nic_no_to_find_inc_status_txt').val();
-     //alert(nic_no);
+     var year = $('#select_inc_status_year').val();
      $.ajax({  
           url:"<?php echo base_url(); ?>increment/viewIncrementByTeacher",  
           method:"POST",  
-          data:{nic_no:nic_no},  
+          data:{nic_no:nic_no,year:year},  
           dataType:"json",  
           success:function(data)  
           {  
@@ -143,7 +152,15 @@
       max-width: 90px; max-height: 120px;
    }
   </style>
-  <?php
+  <style type="text/css">
+    th, td { white-space: nowrap; }
+      div.dataTables_wrapper {
+          height: 200px;
+          width: 1200px;
+          margin: 0 auto;
+      }
+  </style>
+<?php
   foreach($this->session as $user_data){
     $userid = $user_data['userid'];
     $userrole = $user_data['userrole'];
@@ -151,6 +168,7 @@
     if($role_id=='2'){
       //$class = $user_data['grade'].' '.$user_data['class'];
       echo $school_name = $user_data['school_name'];
+      $census_id = $user_data['census_id'];
     }
   }
 ?>
@@ -182,48 +200,46 @@
        } ?> 
       <!-- Icon Cards-->
       <div class="row">
-        <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="col-xl-2 col-sm-2 mb-3">
+          <div class="card text-white bg-info o-hidden h-60">
+            <div class="card-body">
+              <div class="mr-5">Submitted </div>
+      <?php
+              $status = ''; // කොට්ඨාස කාර්යාලයට බාර දුනි 
+              $ci = & get_instance();
+              $ci->load->model('Increment_model');
+              if($role_id==2){
+                $condition = '(tit.inc_status_id=1 or tit.inc_status_id=2 or tit.inc_status_id=3) and tit.increment_year='.date("Y");
+              }else{
+                $condition = '(tit.inc_status_id=1 or tit.inc_status_id=2 or tit.inc_status_id=3) and tit.increment_year='.date("Y");
+              }
+              $received = $ci->Increment_model->count_increment_by_condition($condition);
+      ?>  
+              <a class="text-white clearfix small z-1" href="<?php echo base_url(); ?>Increment/viewIncrements/1"> <h1 align="center"> <?php echo $received; ?> </h1></a>
+            </div>
+          </div><!-- /card-->
+        </div>
+        <div class="col-xl-2 col-sm-6 mb-3">
+          <div class="card text-white bg-danger o-hidden h-60">
+            <div class="card-body">
+              <div class="mr-5">Defects</div>
+      <?php
+              // increments with defects. 
+              $ci = & get_instance();
+              $ci->load->model('Increment_model');
+              $defects = $ci->Increment_model->count_increment_with_defects(date("Y"));
+      ?>
+              <a class="text-white clearfix small z-1" href="<?php echo base_url(); ?>Increment/viewIncrements/1/1"> <h1 align="center"> <?php echo $defects; ?> </h1></a>
+            </div>
+          </div><!-- /card-->
+        </div>
+        <div class="col-xl-2 col-sm-6 mb-3">
           <div class="card text-white bg-warning o-hidden h-100">
             <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-child"></i>
-              </div>
-              <div class="mr-5">Handovered Increments</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>Increment/viewIncrements">
-              <span class="float-left">Go to Form</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div><!-- /card-->
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-info o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-search"></i>
-              </div>
-              <div class="mr-5">Increment Reports</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="<?php echo base_url(); ?>Increment/viewIncrementReports"">
-              <span class="float-left">Go -></span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div><!-- /card-->
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-success o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-search"></i>
-              </div>
-              <div class="mr-5">Increment Status</div>
+              <div class="mr-5">Status</div>
             </div>
             <a class="card-footer text-white clearfix small z-1" href="" data-toggle="modal" data-target="#findIncStatus" >
-              <span class="float-left">Go -></span>
+              <span class="float-left">Check</span>
               <span class="float-right">
                 <i class="fa fa-angle-right"></i>
               </span>
@@ -331,7 +347,7 @@
               <div class="row">
                 <div class="col-lg-12 col-sm-12 my-auto">
                   <h6 align="center"> මෙම වර්ෂයේ <?php echo date("Y:m:d"); ?> දින දක්වා වැටුප් වර්ධක ලබා නොදුන් ගුරුවරුන්</h6>
-                  <?php if(!empty($increment_data)) { //print_r($increment_data); die(); ?>   
+                  <?php if( !empty( $increment_data ) ) { //print_r($increment_data); die(); ?>   
                   <div class="table-responsive">
                     <table id="dataTable2" class="table table-striped table-hover" cellspacing="0">
                       <thead>
@@ -380,7 +396,7 @@
                           <td style="vertical-align:middle" ><?php echo $school; ?></td>
                           <td style="vertical-align:middle" ><?php echo $nic_no; ?></td>
                           <td style="vertical-align:middle" ><?php echo $gender_name; ?></td>
-                          <td style="vertical-align:middle" ><?php echo $phone_mobile1; ?></td>
+                          <td style="vertical-align:middle" ><?php echo $phone_mobile; ?></td>
                           <td style="vertical-align:middle" ><?php echo $desig_type; ?></td>
                           <td style="vertical-align:middle" ><?php echo $first_app_date; ?></td>
                           <td align="center"style="vertical-align:middle"><a type="button" id="<?php echo $staff_id; ?>" name="btn_view_inform_history" type="button" class="btn btn-info btn-sm btn_edit_phy_res btn_view_inform_history" value="<?php echo $staff_id; ?>" title="Click to see message history" data-toggle="tooltip" data-hidden="" ><i class="fa fa-search"></i></a></td>
@@ -455,7 +471,37 @@
                     <div class="form-group">
                       <div class="row">
                         <div class="col-lg-3 col-sm-3">
-                          <label for="sms status" class="control-label"> SMS Status </label>
+                          <label for="sms status" class="control-label"> Email Sent? </label>
+                        </div>
+                        <div class="col-lg-9 col-sm-9">
+                          <input class="form-control" id="emal_status_txt" name="emal_status_txt" placeholder="" type="text" value="" />
+                        </div>
+                      </div> <!-- /row -->
+                    </div> <!-- /form group -->
+                    <div class="form-group">
+                      <div class="row">
+                        <div class="col-lg-3 col-sm-3">
+                          <label for="remarks" class="control-label"> Email Details   </label>
+                        </div>
+                        <div class="col-lg-9 col-sm-9">
+                          <textarea class="form-control" id="email_info_txtarea" name="email_info_txtarea" placeholder=""></textarea> 
+                        </div>
+                      </div> <!-- /row -->
+                    </div> <!-- /form group -->
+                    <div class="form-group">
+                      <div class="row">
+                        <div class="col-lg-3 col-sm-3">
+                          <label for="sent date" class="control-label"> Email Sent Date   </label>
+                        </div>
+                        <div class="col-lg-9 col-sm-9">
+                          <input class="form-control" id="email_sent_date_txt" name="email_sent_date_txt" placeholder="" type="text" value="" />
+                        </div>
+                      </div> <!-- /row -->
+                    </div> <!-- /form group -->
+                    <div class="form-group">
+                      <div class="row">
+                        <div class="col-lg-3 col-sm-3">
+                          <label for="sms status" class="control-label"> SMS Sent? </label>
                         </div>
                         <div class="col-lg-9 col-sm-9">
                           <input class="form-control" id="sms_status_txt" name="sms_status_txt" placeholder="" type="text" value="" />
@@ -465,20 +511,20 @@
                     <div class="form-group">
                       <div class="row">
                         <div class="col-lg-3 col-sm-3">
-                          <label for="sent date" class="control-label"> Sent Date   </label>
+                          <label for="remarks" class="control-label"> SMS Details   </label>
                         </div>
                         <div class="col-lg-9 col-sm-9">
-                          <input class="form-control" id="sent_date_txt" name="sent_date_txt" placeholder="" type="text" value="" />
+                          <textarea class="form-control" id="sms_info_txtarea" name="sms_info_txtarea" placeholder=""></textarea> 
                         </div>
                       </div> <!-- /row -->
                     </div> <!-- /form group -->
                     <div class="form-group">
                       <div class="row">
                         <div class="col-lg-3 col-sm-3">
-                          <label for="remarks" class="control-label"> Remarks   </label>
+                          <label for="sent date" class="control-label"> SMS Sent Date   </label>
                         </div>
                         <div class="col-lg-9 col-sm-9">
-                          <textarea class="form-control" id="remarks_txtarea" name="remarks_txtarea" placeholder=""></textarea> 
+                          <input class="form-control" id="sms_sent_date_txt" name="sms_sent_date_txt" placeholder="" type="text" value="" />
                         </div>
                       </div> <!-- /row -->
                     </div> <!-- /form group -->
@@ -616,19 +662,37 @@
               <div class="row">
                 <div class="col-sm-12 my-auto">
                   <?php
-                  $attributes = array("class" => "form-horizontal finc_inc_status_form", "id" => "finc_inc_status_form", "name" => "send_message_form", "accept-charset" => "UTF-8" );
+                  $attributes = array("class" => "form-horizontal finc_inc_status_form form-inline", "id" => "finc_inc_status_form", "name" => "send_message_form", "accept-charset" => "UTF-8" );
                   echo form_open("", $attributes);?>
-                    <div class="form-group">
+                    <div class="form-group" class="col-lg-6 col-sm-6">
                       <div class="row">
                         <div class="col-lg-3 col-sm-3">
-                          <label for="id" class="control-label"> NIC No  </label>
+                          <label for="id" class="control-label"> ජා.හැ.අංකය (NIC No)  </label>
                         </div>
-                        <div class="col-lg-9 col-sm-9">
+                        <div class="col-lg-3 col-sm-3">
                           <input class="form-control" id="nic_no_to_find_inc_status_txt" name="nic_no_to_find_inc_status_txt" placeholder="" type="text" value="" />
                         </div>
                       </div> <!-- /row -->
                     </div> <!-- /form group -->
-                    
+                    <div class="form-group"  class="col-lg-6 col-sm-6">
+                      <div class="row">
+                        <div class="col">
+                          <label for="Employee Type" class="control-label"> වැටුප් වර්ධක වර්ෂය  </label>
+                        </div>
+                        <div class="col">
+                          <select class="form-control" id="select_inc_status_year" name="select_inc_status_year" title="Please select">
+                            <option value="<?php echo date('Y'); ?>" selected="selected" ><?php echo date('Y'); ?></option>
+                            <?php 
+                              $starting_year = 2020;
+                              $current_year = date('Y');
+                              for( $current_year; $current_year >= $starting_year; $current_year-- ) {
+                                echo '<option value="'.$current_year.'">'.$current_year.'</option>';
+                              }  
+                            ?>                               
+                          </select>                         
+                        </div>
+                      </div> <!-- /row -->
+                    </div> <!-- /form group -->                     
                   <!-- <fieldset> -->
                 </div> <!-- /col-sm-12 -->
               </div> <!-- /row -->

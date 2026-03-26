@@ -38,28 +38,22 @@
 	    	<div class="wow fadeInDown">
 		    	<h2 class="h2 center">Schools in Morawaka division </h2><br>
 		    	<table class="table table-responsive table-hover">
-		    		<tr><th>School</th><th>Principal</th><th>Address</th><th>Tel:</th><th>Email</th></tr>
-		    		<tr>
-		    			<td>MR/Keerthi Abeywickrama National School</td>
-		    			<td>Mr. W.W. Mahinda</td>
-		    			<td>Milla Ela, Morawaka</td>
-		    			<td>0412282217</td>
-		    			<td>kans@gmail.com</td>
-		    		</tr>
-		    		<tr>
-		    			<td>MR/Alapaladeniya Secondary School</td>
-		    			<td>Mr. W.W. Mahinda</td>
-		    			<td>Milla Ela, Morawaka</td>
-		    			<td>0412282217</td>
-		    			<td>alapala@sch.lk</td>
-		    		</tr>
-		    		<tr>
-		    			<td>MR/Morawaka Bauddha Maha Vidyalaya</td>
-		    			<td>Mr. W. Sunil</td>
-		    			<td>Weliwa, Morawaka</td>
-		    			<td>0412282217</td>
-		    			<td>morawakabmv@gmail.com</td>
-		    		</tr>
+		    		<tr><th></th><th>Census ID</th><th>Exam No</th><th>Name</th><th>Address</th><th>Tel:</th><th>Email</th><th>Division</th></tr>
+		   <?php    	
+		   				$x=1;
+		   				foreach($schools as $school){  ?>
+                            <tr>
+                            	<th><?php echo $x; ?></th>
+                                <td width="100"><?php echo $school->census_id; ?></td>
+                                <td><?php echo $school->exam_no; ?></td>
+                                <td><?php echo $school->sch_name; ?></td>
+                                <td><?php echo $school->address1.', '.$school->address2; ?></td>
+                                <td><?php echo $school->contact_no; ?></td>
+                                <td width=""><?php echo $school->email; ?></td>
+                                <td width=""><?php echo $school->div_name; ?></td>
+                            </tr>
+            <?php 		$x++; 
+        				} 		?>
 		    	</table>
 		</div>
     	</div>

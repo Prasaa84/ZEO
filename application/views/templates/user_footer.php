@@ -1,7 +1,8 @@
+    <!-- This is system users footer -->
     <footer class="sticky-footer">
       <div class="container">
         <div class="text-center">
-          <small>Copyright © Zonal Education Office, Deniyaya 2018</small>
+          <small>Copyright © Zonal Education Office, Deniyaya <?php echo date("Y");  ?></small>
         </div>
       </div>
     </footer>
@@ -29,9 +30,6 @@
     </div>
     <!-- Bootstrap core JavaScript-->
     <script src="<?php echo base_url(); ?>assets/vendor/jquery/jquery.min.js"></script>
-    <!-- Date picker -->
-    <script src="<?php echo base_url(); ?>assets/datepicker/js/bootstrap-datepicker.js"></script>
-
     <script src="<?php echo base_url(); ?>assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Core plugin JavaScript-->
     <script src="<?php echo base_url(); ?>assets/vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -42,6 +40,7 @@
     <script src="<?php echo base_url(); ?>assets/datatables/js/dataTables.buttons.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/datatables/js/buttons.print.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/datatables/js/dataTables.select.min.js"></script>
+    <script src="<?php echo base_url(); ?>assets/datatables/js/dataTables.fixedColumns.min.js"></script>
     <!-- Custom scripts for all pages-->
     <script src="<?php echo base_url(); ?>assets/js/sb-admin.min.js"></script>
     <!-- Custom scripts for this page-->
@@ -51,7 +50,10 @@
     <!-- custom functions-->
     <script src="<?php echo base_url(); ?>assets/js/custom.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/jszip.min.js"></script>
-    <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/buttons.html5.min.js"></script>  
+    <!-- Date picker -->
+    <script src="<?php echo base_url(); ?>assets/datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   </div> <!-- /content-wrapper -->
 </body>
 </html>

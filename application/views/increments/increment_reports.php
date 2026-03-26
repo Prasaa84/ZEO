@@ -7,17 +7,26 @@
   #all_phy_res_status td{ vertical-align:middle; padding: .1rem;} 
   .card-header{background-color:#999999;color: #ffffff;}
 </style>
-    <script src="<?php echo base_url(); ?>assets/vendor/jquery/jquery.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/vendor/chart.js/Chart.min.js"></script>
-    <script type="text/javascript">
+<style type="text/css">
+  th, td { white-space: nowrap; }
+    div.dataTables_wrapper {
+        height: 200px;
+        width: 1200px;
+        margin: 0 auto;
+    }
+</style>
+<script src="<?php echo base_url(); ?>assets/vendor/jquery/jquery.min.js"></script>
+<script src="<?php echo base_url(); ?>assets/vendor/chart.js/Chart.min.js"></script>
+<script type="text/javascript">
 
 
-   
-    </script>
+
+</script>
   <?php
     foreach($this->session as $user_data){
       $userid = $user_data['userid'];
       $userrole = $user_data['userrole'];
+      $role_id = $user_data['userrole_id'];
     }
   ?>
 <div class="content-wrapper">
@@ -33,7 +42,7 @@
         <li class="breadcrumb-item active">Increment Reports</li>
       </ol> 
   <?php
-    if($userrole=='System Administrator' || $userrole=='Divisional User'){  ?>  <!-- check for system admin login -->
+    if($role_id=='1' || $role_id=='2' || $role_id=='7' || $role_id=='8' || $role_id=='9'){  ?>  <!-- check for system admin login -->
       <div class="row" id="search-bar-row">     <!-- search bar is availabel for admin only -->
         <div class="col-lg-12 col-sm-12">
           <div class="row">
@@ -46,7 +55,7 @@
                       <option value="" selected> Select the year </option>
                       <?php 
                         $current_year = date('Y')-1;
-                        foreach (range(2015, $current_year) as $value){ ?>
+                        foreach (range($current_year, 2019 ) as $value){ ?>
                           <option value="<?php echo $value; ?>"><?php echo $value; ?></option>
                       <?php } ?>                              
                     </select>
@@ -62,9 +71,29 @@
                     <label for="name" class="form-control-label" style="margin-right: 5px;"> මෙම වර්ෂයේ වැටුප් වර්ධක ලබා දුන් ගුරුවරුන් </label>
                     <select class="form-control" id="inc_status_select" name="inc_status_select" title="Please select">
                       <option value="" selected> Select the Status </option>
-                        <?php foreach ($this->all_increment_status as $row){ ?> <!-- from Staff controller constructor method -->
-                          <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
-                        <?php } ?>                               
+              <?php     foreach ($this->all_increment_status as $row){ 
+                          if($role_id == 7){
+                            if($row->inc_status_id==1 || $row->inc_status_id==2 || $row->inc_status_id==3){
+              ?>
+                              <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
+              <?php         }   ?> 
+              <?php       }elseif($role_id == 8){  
+                            if($row->inc_status_id==3 || $row->inc_status_id==4 || $row->inc_status_id==5){
+              ?>
+                              <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
+              <?php         }
+                          }elseif($role_id == 9){  
+                            if($row->inc_status_id==5 || $row->inc_status_id==6){ 
+              ?>
+                              <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>                
+              <?php         } 
+                          }else{
+              ?>
+                              <option value="<?php echo $row->inc_status_id; ?>"><?php echo $row->inc_status; ?></option>
+              <?php              
+                          }
+                        }
+              ?>                              
                     </select>
                     <button type="submit" class="btn btn-default input-group-addon" name="btn_view_tr_inc_status" value="View"><i class="fa fa-search"></i></button>
                   </div> <!-- /input-group -->
@@ -105,6 +134,7 @@
                           <th> දු.ක.</th>
                           <th>තනතුර</th>
                           <th>මුල් පත්විමේ දිනය </th>
+                          <th>වැටුප් වර්ධක දිනය </th>
                           <th> ලබාදුන් දිනය </th>
                           <th> යාවත්කාලීන වූ දිනය </th>
                           <th> තත්වය </th>  
@@ -131,6 +161,7 @@
                           $desig_type = $row->desig_type;
                           $inc_status = $row->inc_status;
                           $first_app_date = $row->first_app_dt;
+                          $sal_incr_dt = $row->sal_incr_dt;
                           $date_added = $row->inc_date_added;
                           $update_dt = $row->last_update;
                           $remarks = $row->remarks;
@@ -147,6 +178,7 @@
                           <td style="vertical-align:middle" ><?php echo $phone_mobile; ?></td>
                           <td style="vertical-align:middle" ><?php echo $desig_type; ?></td>
                           <td style="vertical-align:middle" ><?php echo $first_app_date; ?></td>
+                          <td style="vertical-align:middle" ><?php echo $sal_incr_dt; ?></td>
                           <td style="vertical-align:middle" ><?php echo $date_added; ?></td>
                           <td style="vertical-align:middle" ><?php echo $update_dt; ?></td>
                           <td style="vertical-align:middle" ><?php echo $inc_status; ?></td>
@@ -178,7 +210,7 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-lg-12 col-sm-12 my-auto">
-                  <h6 align="center"> මෙම වර්ෂයේ  වැටුප් වර්ධක ලබා දුන් ගුරුවරුන්</h6>
+                  <h6 align="center"> මෙම වර්ෂයේ  වැටුප් වර්ධක ලබා නොදුන් ගුරුවරුන්</h6>
                   <div class="table-responsive">
                     <table id="dataTable2" class="table table-striped table-hover" cellspacing="0">
                       <thead>
@@ -191,6 +223,7 @@
                           <th> දු.ක.</th>
                           <th> තනතුර </th>
                           <th> මුල් පත්විමේ දිනය </th>
+                          <th> වැටුප් වර්ධක දිනය </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -212,7 +245,7 @@
                           }
                           $desig_type = $row[0]->desig_type;
                           $first_app_date = $row[0]->first_app_dt;
-                          
+                          $sal_incr_dt = $row[0]->sal_incr_dt;
                           $no = $no + 1;  ?>
                         <tr>
                           <th><?php echo $no; ?></th>
@@ -222,7 +255,8 @@
                           <td style="vertical-align:middle" ><?php echo $gender_name; ?></td>
                           <td style="vertical-align:middle" ><?php echo $phone_mobile; ?></td>
                           <td style="vertical-align:middle" ><?php echo $desig_type; ?></td>
-                          <td style="vertical-align:middle" ><?php echo $first_app_date; ?></td>                         
+                          <td style="vertical-align:middle" ><?php echo $first_app_date; ?></td>
+                          <td style="vertical-align:middle" ><?php echo $sal_incr_dt; ?></td>
                         </tr>
                   <?php } // end foreach ?>
                       </tbody>
@@ -263,7 +297,7 @@
                           <th> දු.ක.</th>
                           <th>තනතුර</th>
                           <th>මුල් පත්විමේ දිනය </th>
-
+                          <th>වැටුප් වර්ධක දිනය </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -285,6 +319,7 @@
                           }
                           $desig_type = $row[0]->desig_type;
                           $first_app_date = $row[0]->first_app_dt;
+                          $sal_incr_dt = $row[0]->sal_incr_dt;
                           $update_dt = $row[0]->last_update;
                           if($latest_upd_dt < $update_dt){
                             $latest_upd_dt = $update_dt;
@@ -299,7 +334,7 @@
                           <td style="vertical-align:middle" ><?php echo $phone_mobile; ?></td>
                           <td style="vertical-align:middle" ><?php echo $desig_type; ?></td>
                           <td style="vertical-align:middle" ><?php echo $first_app_date; ?></td>
-                          
+                          <td style="vertical-align:middle" ><?php echo $sal_incr_dt; ?></td>
                         </tr>
                   <?php } // end foreach ?>
                       </tbody>

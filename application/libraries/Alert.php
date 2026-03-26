@@ -29,7 +29,8 @@ class alert {
             $allSchools = $this->ci->School_model->view_all_schools();
             foreach ($allSchools as $row) {
                 $censusId = $row->census_id;
-                $result = $this->ci->Physical_resource_model->get_short_phy_res_details($censusId); // $result = shortage of physical resource updation
+                $year = date('Y');
+                $result = $this->ci->Physical_resource_model->get_shortage_of_phy_res_details($censusId,$year); // $result = shortage of physical resource updation
                 if($result){
                     $to = $censusId; $cat_id = '1'; // cat_id = 1 means physical resource in alert categories
                     $add = $this->ci->Alert_model->addAlert($result,$to,$cat_id);

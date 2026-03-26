@@ -138,7 +138,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                               <label for="current password"> New Password </label>
                             </div>
                             <div class="col-lg-9 col-sm-9">
-                              <input class="form-control" id="new_pwd_txt" name="new_pwd_txt" placeholder="---Type here---" type="text" />
+                              <input class="form-control" id="new_pwd_txt" name="new_pwd_txt" placeholder="---Type here---" type="text"  title="Min length is 5, Max length is 10" data-toggle="tooltip" />
                               <span class="text-danger"><?php echo form_error('new_pwd_txt'); ?></span>
                             </div>
                           </div> <!-- /row -->

@@ -11,15 +11,10 @@ class Increment extends CI_Controller {
         $this->load->model('Common_model');
         $this->load->model('Increment_model');
         $this->all_increment_status = $this->viewAllIncrementStatus();
-        $this->sendIncrementSms();
-        $this->userRole = $this->session->userdata['userrole'];
-        if($this->userRole == 'System Administrator'){
-            //$this->staff_count_schoolwise = $this->view_all_school_staff_count_schoolwise(); // for bar chart in admin dashboard
-            //$this->staff_count_genderwise = $this->view_all_school_staff_count_genderwise(); // for bar chart in admin dashboard        
-        }
-        if($this->userRole == 'School User'){
-            //$this->staff_count_schoolwise= $this->view_all_school_staff_count_schoolwise(); // for bar chart in staff dashboard
-            //$this->staff_count_genderwise = $this->view_staff_count_genderwise(); // for bar chart in staff dashboard        
+        //$this->sendIncrementSms();
+        if(is_logged_in()){
+            $this->userrole = $this->session->userdata['userrole'];
+            $this->userrole_id = $this->session->userdata['userrole_id']; 
         }
     }
     public function viewAllIncrementStatus(){
@@ -28,13 +23,13 @@ class Increment extends CI_Controller {
     // increments
     public function index(){
         if(is_logged_in()){
-            //$userId = $this->session->userdata['user_id'];
-            if($this->userRole == 'System Administrator' || $this->userRole == 'Divisional User' || $this->userRole == 'Zonal User'){
+            //userrole_id 1 - sys admin, 3-zonal user, 7-edu.divisional user
+            if($this->userrole_id == '1' || $this->userrole_id == '7' || $this->userrole_id == '3' || $this->userrole_id == '8' || $this->userrole_id == '9'){
                 $current_month_date = date("m-d"); // get the current month and date
                 //$condition = 'date_format(st.first_app_dt,"%m-%d") >= "'.$from.'" and date_format(st.first_app_dt,"%m-%d") <= "'.$to.'" ';  // "%m-%d" means picking only month and day from first appoinment date
             	$condition1 = 'date_format(st.first_app_dt,"%m-%d") <= "'.$current_month_date.'" ';	// next month to be ignored
                 //die();
-            }else if($this->userRole == 'School User'){
+            }else if($this->userrole_id == '2'){
                 $current_month_date = date("m-d"); // get the current month and date
                 $censusId = $this->session->userdata['census_id'];
                 $condition1 = 'date_format(st.first_app_dt,"%m-%d") <= "'.$current_month_date.'" and st.census_id = "'.$censusId.'" ';    // next month to be ignored
@@ -42,8 +37,8 @@ class Increment extends CI_Controller {
             }
             $all_teachers = $this->Staff_model->get_stf_by_condition($condition1); // find all teacher of staff_tbl whos month of first app date is less than or equal to current month, bcz next month to be avoided
             //print_r($all_teachers); die();
-            if($all_teachers){
-                foreach ($all_teachers as $teacher) {
+            if( $all_teachers ){
+                foreach ( $all_teachers as $teacher ) {
                     $stfId = $teacher->stf_id;
                     //$app_date = $teacher->first_app_dt;
                     $this->Increment_model->get_stf_increment_not_submit($stfId); // current year is checked in increment_model
@@ -52,114 +47,244 @@ class Increment extends CI_Controller {
                         $increment_data[] = $this->Staff_model->get_stf_by_condition($condition);
                     }
                 }  
-                if(empty($increment_data)){
+                if( empty( $increment_data ) ){
                     $increment_data = '';
                 } 
             }else{
                 $increment_data = '';
             }
-             
-            //die();
-            //print_r($increment_data); die();
-            if($this->viewRecentIncrements()){
+
+            if( $this->viewRecentIncrements() ){
                 $coming_salary_increments = $this->viewRecentIncrements(); 
             }else{
                 $coming_salary_increments = '';
             }
-        	$data['coming_salary_increments'] = $coming_salary_increments;
-        	$data['increment_data'] = $increment_data;
+        	
     		$data['title'] = 'Increment Details';
-            $data['user_header'] = 'user_admin_header';
-            $data['user_content'] = 'increments/index';
-            $this->load->view('templates/user_template', $data);
+            if( $this->userrole_id == '3' ){ // zonal user
+                $data['user_header'] = 'user_zeo_header';
+                $data['user_content'] = 'increments/index';
+            }elseif( $this->userrole_id == '7' ){ // edu. divisional user
+                $data['user_header'] = 'user_edu_division_header';
+                $data['user_content'] = 'increments/divisional_user_increment_index';
+            }elseif( $this->userrole_id == '8' ){ // edu. divisional user
+                $data['user_header'] = 'user_zonal_file_header';
+                $data['user_content'] = 'increments/zonal_file_user_increment_index';
+            }elseif( $this->userrole_id == '9' ){ // edu. divisional user
+                $data['user_header'] = 'user_zonal_file_header';
+                $data['user_content'] = 'increments/zonal_salary_user_increment_index';
+            }else{
+                $data['user_header'] = 'user_admin_header';
+                $data['user_content'] = 'increments/index';
+            }     
+            $data['coming_salary_increments'] = $coming_salary_increments;
+            $data['increment_data'] = $increment_data;
+        $this->load->view('templates/user_template', $data);
         }else{
-            redirect('Login');
+            redirect('User');
         }
     }
     // view coming increments from today upto 30 days
     public function viewRecentIncrements(){
-        $userRole = $this->session->userdata['userrole'];
         $from = date("m-d"); // get the current date
         $to = date('m-d', strtotime(' + 30 days')); // add 30 days to current date
-        if($userRole == 'System Administrator' || $userRole == 'Divisional User' || $userRole == 'Zonal User'){
-            $condition = 'date_format(st.first_app_dt,"%m-%d") >= "'.$from.'" and date_format(st.first_app_dt,"%m-%d") <= "'.$to.'" ';  // "%m-%d" means picking only month and day from first appoinment date
-            $coming_salary_increments = $this->Increment_model->get_recent_increments($condition);
-        }else if($userRole == 'School User'){
-            $censusId = $this->session->userdata['census_id'];
-            $condition = 'date_format(st.first_app_dt,"%m-%d") >= "'.$from.'" and date_format(st.first_app_dt,"%m-%d") <= "'.$to.'" ';  // "%m-%d" means picking only month and day from first appoinment date
-            $condition .= 'and st.census_id = "'.$censusId.'"'; 
-            $coming_salary_increments = $this->Increment_model->get_recent_increments($condition);
-        }
-        return $coming_salary_increments;
-    }
-    public function sendIncrementSms(){ 
-        //echo date("Y-m-d h:i:sa"); die();
-        $coming_salary_increments = $this->viewRecentIncrements();
-        //print_r($coming_salary_increments); die();
-        if($coming_salary_increments){
-            foreach ($coming_salary_increments as $teacher) {
-                $staff_id = $teacher->staff_id;
-                $currentYear = date("Y");
-                if($this->Increment_model->check_increment_sms_status($staff_id,$currentYear)){
-                    $gender_id = $teacher->gender_id;
-                    $civil_status = $teacher->civil_status_id;
-                    if($gender_id==1){
-                        $salutation = 'Mr';
-                    }else{
-                        if($civil_status_id==1){
-                            $salutation = 'Mrs';
-                        }else if($civil_status_id==2){
-                            $salutation = 'Ms';
-                        }else{ $salutation = ''; }
-                    }
-                    $name = $salutation.' '.$teacher->name_with_ini;
-                    $incrementDate = date('m-d', strtotime($teacher->first_app_dt));
-                    $incrementDate = $currentYear.'-'.$incrementDate;
-                    if($teacher->phone_mobile1 != ''){
-                        $phoneNo = $teacher->phone_mobile1;
-                    }else if($teacher->phone_mobile2 != ''){
-                        $phoneNo = $teacher->phone_mobile2;
-                    }
-                    $message = $name.', your salary increment date is '.$incrementDate;
-                    if($this->sendSms($phoneNo,$message)){
-                        $remarks = 'Sent the message to '.$phoneNo.' successfully';
-                        $this->recordSmsResult($staff_id,$currentYear,$remarks);
-                    }else{
-                        $remarks = 'Message was not sent to '.$phoneNo.' ';
-                        $this->recordSmsResult($staff_id,$currentYear,$remarks);
-                    }
-                }
+        // if( $this->userrole_id == '1'  || $this->userrole_id == '7' || $this->userrole_id == '3' || $this->userrole_id == '8' || $this->userrole_id == '9' ){
+        //     $condition = 'date_format(st.first_app_dt,"%m-%d") >= "'.$from.'" and date_format(st.first_app_dt,"%m-%d") <= "'.$to.'" ';  // "%m-%d" means picking only month and day from first appoinment date
+        //     $coming_salary_increments = $this->Increment_model->get_recent_increments($condition);
+        // }
+        $condition = 'date_format(st.first_app_dt,"%m-%d") >= "'.$from.'" and date_format(st.first_app_dt,"%m-%d") <= "'.$to.'" ';  // "%m-%d" means picking only month and day from first appoinment date
+        if( is_logged_in() ){
+            //$this->session->userdata['userrole_id'];
+            $this->userrole_id = $this->session->userdata['userrole_id']; // without this line userrole_id not identified, but this has been defined inside the constructor method too.
+            if( $this->userrole_id == '2' ){
+                $censusId = $this->session->userdata['census_id'];
+                $condition .= 'and st.census_id = "'.$censusId.'"'; 
             }
         }
+        //print_r($this->Increment_model->get_recent_increments($condition)); die();
+        return $this->Increment_model->get_recent_increments($condition);
     }
-    public function sendSms($phoneNo,$message){
+
+    // this is to be added as cronjob in live server and remove it from constructor method.
+    public function sendIncrementEmail(){  
+        $salary_increments_list = $this->viewRecentIncrements(); 
+        //print_r($salary_increments_list); 
+        $success = 0;
+        $fail = 0;
+        $count = 0;
+        if( $salary_increments_list ){
+            foreach ( $salary_increments_list as $teacher ) {
+                $stfId = $teacher->staff_id;
+                // currnet year is taken to make the increment date
+                $currentYear = date("Y");
+                // if the month in January, increment msg is sent on December. To make the increment year_
+                // _One year to be added to the current year. thats what done below
+                if( date('m') == 12 ){
+                    $currentYear = $currentYear + 1;
+                }
+                $emailSent = $this->Increment_model->is_increment_email_sent( $stfId, $currentYear );
+                // if email has not been sent yet
+                if( !$emailSent ){
+                    $name = $teacher->title.' '.$teacher->name_with_ini;
+                    // Increment mondth and date are fetch from first appoinment date.
+                    $incrementDate = date( 'm-d', strtotime( $teacher->first_app_dt ) );
+                    // make the coming increment date using current year
+                    $incrementDate = $currentYear.'-'.$incrementDate;
+
+                    $toEmail = $teacher->stf_email;
+                    $subject = 'Reminder of Salary Increment Date';
+                    $message = $name.', your salary increment date is '.$incrementDate.'<br>';
+                    $message .= 'Please prepare the relevant documents and apply for the salary increment after '.$incrementDate;
+                    $message .= '<br>';
+                    $message .= 'From<br>';
+                    $message .= 'Zonal Education Office, Deniyaya';
+                    //if( $toEmail=='mgpprasan@gmail.com' || $toEmail=='sunethraedirisinghe@gmail.com' ){
+                        if( $this->Common_model->send_mail( $toEmail, $subject, $message ) ){
+                            $status = 1;
+                            $success += 1;
+                            $remarks = 'Email sent to '.$toEmail.' successfully';
+                        }else{
+                            if( empty( $toEmail ) ){
+                                $remarks = 'Email was not found ';
+                            }else{
+                                $remarks = 'Email was not sent to '.$toEmail.' ';
+                            }   
+                            $fail += 1;
+                            $status = 0;
+                        } 
+                        if( $this->Increment_model->is_increment_info_sent( $stfId, $currentYear ) ){
+                            $this->updateEmailResult( $stfId, $status, $remarks );
+                        }else{
+                            $this->insertEmailResult( $stfId, $currentYear, $status, $remarks );
+                        }
+                        $count += 1;
+                    //}
+                    
+                } // if( !$emailSent ){
+                   
+            } // foreach
+            echo 'Count : '.$count.'<br>';
+            echo 'Success Count : '.$success.'<br>';
+            echo 'Fail Count : '.$fail.'<br>';    
+        } // if
+    }
+
+    // this is to be added as cronjob in live server and remove it from constructor method.
+    public function sendIncrementSms(){ 
+        //echo date("Y-m-d h:i:sa"); die();
+        $salary_increments_list = $this->viewRecentIncrements();
+        //print_r($salary_increments_list); die();
+        if( $salary_increments_list ){
+            foreach ( $salary_increments_list as $teacher ) {
+                $staffId = $teacher->staff_id;
+                $currentYear = date("Y");
+                //echo $this->Increment_model->is_increment_sms_sent($staff_id,$currentYear);
+                if( !$this->Increment_model->is_increment_sms_sent( $staffId, $currentYear ) ){
+                    $name = $teacher->title.' '.$teacher->name_with_ini;
+                    $incrementDate = date('m-d', strtotime($teacher->first_app_dt));
+                    $incrementDate = $currentYear.'-'.$incrementDate;
+                    if( $teacher->phone_mobile1 != '' ){
+                        $phoneNo = $teacher->phone_mobile1;
+                    }else if( $teacher->phone_mobile2 != '' ){
+                        $phoneNo = $teacher->phone_mobile2;
+                    }
+                    //if( $phoneNo=='0715885993' || $phoneNo=='0714837886'){
+                        $message = $name.', your salary increment date is '.$incrementDate;
+                        $message .= "\n From: ZEO,Deniyaya";
+                        //$smsResult = $this->sendSms($phoneNo,$message); 
+                        $smsResult = 0; // disable this code and enable above code when need to enable sms
+                        if( !$smsResult ){
+                            $status = 0;
+                            if( empty( $phoneNo ) ){
+                                $remarks = 'Phone number not found';
+                            }else{
+                                $remarks = 'Message was not sent to '.$phoneNo.' ';
+                            }
+                           
+                        }else{
+                            $status = 1;
+                            $remarks = 'Sent the message to '.$phoneNo.' successfully';
+                        }
+                        if( $this->Increment_model->is_increment_info_sent( $staffId, $currentYear ) ){
+                            $this->updateSmsResult( $staffId, $status, $remarks );
+                        }else{
+                            $this->insertSmsResult( $staffId, $currentYear, $status, $remarks );
+                        }
+                    //}
+                } // if
+            } // foreach
+        } // if
+    }
+    public function sendSms( $phoneNo,$message ){
         $user = "942018052101";
         $password = "2518";
         $text = urlencode($message);
         $to = $phoneNo;
-         
         $baseurl ="http://www.textit.biz/sendmsg";
         $url = "$baseurl/?id=$user&pw=$password&to=$to&text=$text";
         $ret = file($url);
-         
+            
         $res= explode(":",$ret[0]);
-         
-        if (trim($res[0])=="OK"){
+    
+        if ( trim($res[0])=="OK" ){
             return true;
         }else{
             return false;
         }
     }
-    public function recordSmsResult($id,$year,$remarks){
+    public function insertEmailResult( $id, $year, $status, $remarks ){
         $time = date("Y-m-d h:i:sa");
         $data = array(
             'stf_id' => $id,
             'increment_year' => $year,
-            'sms_sent' => 1,
-            'remarks' => $remarks,
-            'sms_sent_date' => $time
+            'sms_sent' => '',
+            'sms_info' => '',
+            'email_sent' => $status,
+            'email_info' => $remarks,
+            'sms_sent_date' => '',
+            'email_sent_date' => $time
         );
         if($this->Increment_model->insert_sms_result($data)){
+            return true;
+        }else{ return false; }
+    }
+    public function updateEmailResult( $id, $status, $remarks ){
+        $time = date("Y-m-d h:i:sa");
+        $data = array(
+            'stf_id' => $id,
+            'email_sent' => $status,
+            'email_info' => $remarks,
+            'email_sent_date' => $time
+        );
+        if( $this->Increment_model->update_increment_msg_info($data) ){
+            return true;
+        }else{ return false; }
+    }
+    public function insertSmsResult( $id, $year, $status, $remarks ){
+        $time = date("Y-m-d h:i:sa");
+        $data = array(
+            'stf_id' => $id,
+            'increment_year' => $year,
+            'sms_sent' => $status,
+            'sms_info' => $remarks,
+            'email_sent' => '',
+            'email_info' => '',
+            'sms_sent_date' => $time,
+            'email_sent_date' => ''
+        );
+        if($this->Increment_model->insert_sms_result($data)){
+            return true;
+        }else{ return false; }
+    }
+    public function updateSmsResult( $id, $status, $remarks ){
+        $time = date("Y-m-d h:i:sa");
+        $data = array(
+            'stf_id' => $id,
+            'sms_sent' => $status,
+            'sms_info' => $remarks,
+            'sms_sent_date' => $time
+        );
+        if( $this->Increment_model->update_increment_msg_info( $data ) ){
             return true;
         }else{ return false; }
     }
@@ -167,14 +292,21 @@ class Increment extends CI_Controller {
         $output = array();  
         $year = date("Y");
         $staff_id = $_POST['staff_id']; //die();
-        $data = $this->Increment_model->get_sms_info($staff_id,$year);  
-        foreach($data as $row)  {  
-            $output['tr_inc_inform_id'] = $row->tr_inc_inform_id;  
-            $output['increment_year'] = $row->increment_year;  
-            $output['sms_sent'] = $row->sms_sent;  
-            $output['remarks'] = $row->remarks; 
-            $output['sms_sent_date'] = $row->sms_sent_date;             
-        }  
+        $data = $this->Increment_model->get_sms_info( $staff_id,$year ); 
+        if(!$data){
+            $output = 'Not sent';
+        }else{
+            foreach($data as $row){  
+                $output['tr_inc_inform_id'] = $row->tr_inc_inform_id;  
+                $output['increment_year'] = $row->increment_year;  
+                $output['sms_sent'] = $row->sms_sent;  
+                $output['sms_info'] = $row->sms_info; 
+                $output['email_sent'] = $row->email_sent;  
+                $output['email_info'] = $row->email_info; 
+                $output['sms_sent_date'] = $row->sms_sent_date;   
+                $output['email_sent_date'] = $row->email_sent_date;             
+            }  
+        }   
         echo json_encode($output);  
     }
     public function getDatatoSendMessage(){
@@ -250,24 +382,119 @@ class Increment extends CI_Controller {
     // view all increments submitted in this year
     public function viewIncrements(){
         if(is_logged_in()){
-            $userRole = $this->session->userdata['userrole'];
+
             $userId = $this->session->userdata['userid'];
             $year = date("Y");
-            if($userRole == 'School User'){
+            if( $this->userrole_id == '2' ){ // school user
+                $censusId = $this->session->userdata['census_id'];
+                if( !empty($this->uri->segment(4)) ){
+                    $statusId = $this->uri->segment(3); // increment status
+                    $defects = $this->uri->segment(4); //  defects
+                    $condition = 'tit.inc_status_id = "'.$statusId.'" and tit.defects = 1 and increment_year = "'.$year.'" and st.census_id = "'.$censusId.'" ';
+                }elseif( !empty($this->uri->segment(3)) ){
+                    $statusId = $this->uri->segment(3); // increment status
+                    $condition = 'increment_year = "'.$year.'" and st.census_id = "'.$censusId.'" ';
+                }
+            }else if( $this->userrole_id == '1' || $this->userrole_id == '3'){ // admin or zonal user
+                $condition = 'increment_year = "'.$year.'" ';
+                if( !empty($this->uri->segment(4)) ){
+                    $statusId = $this->uri->segment(3); // increment status
+                    $defects = $this->uri->segment(4); //  defects
+                    $condition = 'tit.defects = 1 and increment_year = "'.$year.'" ';
+                }elseif( !empty($this->uri->segment(3)) ){
+                    $statusId = $this->uri->segment(3); // increment status
+                    $condition = 'increment_year = "'.$year.'" ';
+                }
+            }else if( $this->userrole_id == '7' ){ // divisional user
+                $divId = $this->session->userdata['div_id']; 
+                if ( !empty( $this->uri->segment(4) ) ) {
+                    echo $defects = $this->uri->segment(4);  // defects
+                    $condition = 'tit.defects = "'.$defects.'" and tit.increment_year = "'.$year.'" and sdt.div_id = "'.$divId.'" and (tit.inc_status_id=2 || tit.inc_status_id=3 || tit.inc_status_id=1) ';
+                }elseif( !empty( $this->uri->segment(3) ) ){
+                    $statusId = $this->uri->segment(3);// increment status
+                    if( $statusId==1 ){
+                        $condition = '( tit.inc_status_id = 1 or tit.inc_status_id = 2 or tit.inc_status_id = 3 )and increment_year = "'.$year.'" and sdt.div_id = "'.$divId.'" ';
+                    }elseif ( $statusId==2 ) {
+                        $condition = '( tit.inc_status_id = 2 or tit.inc_status_id = 3) and increment_year = "'.$year.'" and sdt.div_id = "'.$divId.'" ';
+                    }elseif ( $statusId==3 ){
+                        $condition = 'tit.inc_status_id = 3 and increment_year = "'.$year.'" and sdt.div_id = "'.$divId.'" ';
+                    }else{
+                        $condition = 'increment_year = "'.$year.'" and sdt.div_id = "'.$divId.'" ';
+                    }
+                }else{
+                    $condition = 'increment_year = "'.$year.'" ';
+                    $condition .= 'and tit.inc_status_id=1 or tit.inc_status_id=2 or tit.inc_status_id=3'; 
+                }
+                //$condition = 'st.census_id = "'.$censusId.'" ';
+            }elseif( $this->userrole_id == '8' ){  // zonal file section
+                if( !empty($this->uri->segment(4)) ){
+                    $statusId = $this->uri->segment(3); // increment status
+                    $defects = $this->uri->segment(4); //  defects
+                    $condition = 'tit.inc_status_id = "'.$statusId.'" and tit.defects = 1 and increment_year = "'.$year.'" ';
+                }elseif( !empty($this->uri->segment(3)) ){
+                    $statusId = $this->uri->segment(3); // increment status
+                    $condition = 'tit.inc_status_id = "'.$statusId.'"  and increment_year = "'.$year.'" ';
+                }else{
+                    $condition = 'tit.inc_status_id = 3 or tit.inc_status_id = 4 or tit.inc_status_id = 5 and increment_year = "'.$year.'" ';
+                }
+            }elseif( $this->userrole_id == '9' ){ // zonal salary section
+                if( !empty($this->uri->segment(4)) ){
+                    $statusId = $this->uri->segment(3); // increment status
+                    $defects = $this->uri->segment(4); //  defects
+                    $condition = 'tit.inc_status_id = "'.$statusId.'" and tit.defects = 1 and increment_year = "'.$year.'" ';
+                }elseif( !empty($this->uri->segment(3)) ){
+                    $statusId = $this->uri->segment(3); // increment status
+                    $condition = 'tit.inc_status_id = "'.$statusId.'"  and increment_year = "'.$year.'" ';
+                }else{
+                    $condition = 'tit.inc_status_id = 5 or tit.inc_status_id = 6 and increment_year = "'.$year.'" ';
+                }
+            }
+            $increments = $this->Increment_model->view_increments($condition);
+            //print_r($newMessages); die();
+            $data['title'] = 'Hand overed salary increments';
+            $data['increments'] = $increments;
+            if( $this->userrole_id == '3' ){ // edu. divisional user
+                $data['user_header'] = 'user_zeo_header';
+            }elseif( $this->userrole_id == '7' ){ // edu. divisional user
+                $data['user_header'] = 'user_edu_division_header';
+            }elseif( $this->userrole_id == '8' ){ // edu. divisional user
+                $data['user_header'] = 'user_zonal_file_header';
+            }elseif( $this->userrole_id == '9' ){ // edu. divisional user
+                $data['user_header'] = 'user_zonal_file_header';
+            }else{
+                $data['user_header'] = 'user_admin_header';
+            }
+            $data['user_content'] = 'increments/new_increments';
+            $this->load->view('templates/user_template', $data);
+        }else{
+            redirect('User');
+        }
+    }
+    public function viewIncrementsByStatus(){
+        if(is_logged_in()){
+            $status1 = $this->uri->segment(3);
+            $status2 = $this->uri->segment(4);
+            $status3 = $this->uri->segment(5);
+            $year = date("Y");
+
+            if(!empty($status1)){
+
+            }
+            if($this->userrole_id == '2'){ // school user
                 $censusId = $this->session->userdata['census_id'];
                 $condition = 'to_whom = "'.$censusId.'" ';
                 $condition = 'increment_year = "'.$year.'" and st.census_id = "'.$censusId.'" ';
-            }else if($userRole == 'System Administrator'){
+            }else if($this->userrole_id == '1' ){ // admin
                 $condition = 'increment_year = "'.$year.'" ';
                 //$condition = 'st.census_id = "'.$censusId.'" ';
-            }else if($userRole == 'Divisional User'){
+            }else if($this->userrole_id == '7'){ // divisional user
                 $condition = 'increment_year = "'.$year.'" ';
                 //$condition = 'st.census_id = "'.$censusId.'" ';
-            }else if($userId = '24'){
+            }else if($this->userrole_id = '8'){ 
                 //$current_month_date = date("m-d"); // get the current month and date
                 $condition = 'increment_year = "'.$year.'" ';
                 $condition .= 'and tit.inc_status_id = 3';
-            }else if($userId = '23'){
+            }else if($this->userrole_id = '9'){
                 //$current_month_date = date("m-d"); // get the current month and date
                 $condition = 'increment_year = "'.$year.'" ';
                 $condition .= 'and tit.inc_status_id = 5';
@@ -276,11 +503,15 @@ class Increment extends CI_Controller {
             //print_r($newMessages); die();
             $data['title'] = 'Hand overed salary increments';
             $data['increments'] = $increments;
-            $data['user_header'] = 'user_admin_header';
+            if($this->userrole_id == '7'){ // edu. divisional user
+                $data['user_header'] = 'user_edu_division_header';
+            }else{
+                $data['user_header'] = 'user_admin_header';
+            } 
             $data['user_content'] = 'increments/new_increments';
             $this->load->view('templates/user_template', $data);
         }else{
-            redirect('Login');
+            redirect('User');
         }
     }
     // view increment by incriment id to view on increment update modal in new increment view
@@ -313,14 +544,15 @@ class Increment extends CI_Controller {
     // view increment by incriment id to view on increment update modal in new increment view
     public function viewIncrementByTeacher(){
         if(is_logged_in()){
-            $year = date("Y");
-            $nic_no = $_POST['nic_no']; //die();
-            $inc_status = $this->Increment_model->view_increments_by_nic($nic_no,$year);  
-            if(!$inc_status){
+            //$year = date("Y");
+            $nic_no = $_POST['nic_no']; 
+            $year = $_POST['year']; 
+            $inc_status = $this->Increment_model->view_increments_by_nic( $nic_no, $year );  
+            if( !$inc_status ){
                 $msg = 'No records found!!!';
                 $output = '<div class="alert alert-danger" >'.$msg.'</div>';
             }else{
-                foreach ($inc_status as $row) {
+                foreach ( $inc_status as $row ) {
                     $status_id = $row->inc_status_id;
                 }
                 switch ($status_id) {
@@ -393,63 +625,107 @@ class Increment extends CI_Controller {
                     $this->session->set_flashdata('increment_add_msg', array('text' => 'Name, NIC No, School, Increment date, Increment year, Defects and Submit date fields are required!','class' => 'alert alert-danger'));
                     $this->viewIncrements();
                 }else{
+                    // $latest_upd_dt = strtotime($inc_date);
+                    // echo $incDate = date( "m-d",strtotime( $inc_date ) ); 
+                    // echo $today = date("m-d");
+                    // if( $today <= $incDate ){ // this is checked below
+                    //     $this->session->set_flashdata('increment_add_msg', array('text' => 'Sorry, your increment date is '.$inc_date.' Apply for the increment after the increment date','class' => 'alert alert-danger'));
+                    //     $this->viewIncrements();
+                    // }else{ 
+                    //     echo 'no'; 
+                    // }
                     $stf_id = $this->input->post('stf_id_hidden');
                     $inc_year = $this->input->post('inc_year_select');
-                    $inc_date = $this->input->post('inc_date_txt');
                     $inc_status_id = $this->input->post('increment_status_select');
+                    $inc_date = $this->input->post('inc_date_txt');
                     $defect_id = $this->input->post('defects_select');                    
                     $submit_dt = $this->input->post('submit_dt_txt');
-                    if($submit_dt < $inc_date){
+                    //die();
+                    if( $submit_dt < $inc_date ){
                         // if submit date is less than the increment date, stop applying increment
                         $this->session->set_flashdata('increment_add_msg', array('text' => 'Please apply the increment after your increment date!','class' => 'alert alert-danger'));
                         $this->viewIncrements();
                     }else{
-                        $exists = $this->Increment_model->check_increment_exists($stf_id,$inc_year);
-                        if(!$exists){
-                            $now = date('Y-m-d');
-                            $data = array(
-                                'tr_inc_id' => '',
-                                'stf_id' => $stf_id,
-                                'increment_year' => $inc_year,
-                                'inc_status_id' => $inc_status_id,
-                                'defects' => $defect_id,
-                                'remarks' => '',
-                                'date_added' => $submit_dt,
-                                'date_updated' => $now,
-                                'is_deleted' => '',
-                            );
-                            $result = $this->Increment_model->insert_new_increment($data);
-                            if($result){
-                                $this->session->set_flashdata('increment_add_msg', array('text' => 'Salary increment details added successfully','class' => 'alert alert-success'));
-                            }else{
-                                $this->session->set_flashdata('increment_add_msg', array('text' => 'Error in inserting data!!!','class' => 'alert alert-danger'));
-                            }
-                        }else{
-                            $this->session->set_flashdata('increment_add_msg', array('text' => 'This salary increment already exists!!!','class' => 'alert alert-danger'));
+                        $condition = 'st.stf_id='.$stf_id;
+                        $stfInfo = $this->Staff_model->get_stf_by_condition($condition);
+                        foreach ( $stfInfo as $row ) {
+                            $stfName = $row->name_with_ini;
+                            $stfDivId = $row->div_id;
                         }
+                        if( $this->userrole_id == 7 ){
+                            $LoggedDivId = $this->session->userdata['div_id'];
+                        }
+                        if( $LoggedDivId == $stfDivId ){
+                            $exists = $this->Increment_model->check_increment_exists( $stf_id, $inc_year );
+                            //echo $exists; die();
+                            if( !$exists ){
+                                $now = date('Y-m-d H:i:s');
+                                $data = array(
+                                    'tr_inc_id' => '',
+                                    'stf_id' => $stf_id,
+                                    'increment_year' => $inc_year,
+                                    'inc_status_id' => $inc_status_id,
+                                    'defects' => $defect_id,
+                                    'remarks' => '',
+                                    'date_added' => $submit_dt,
+                                    'date_updated' => $now,
+                                    'is_deleted' => '',
+                                );
+                                $result = $this->Increment_model->insert_new_increment($data);
+                                if( $result ){
+                                    $this->session->set_flashdata('increment_add_msg', array('text' => 'Salary increment details added successfully','class' => 'alert alert-success'));
+                                }else{
+                                    $this->session->set_flashdata('increment_add_msg', array('text' => 'Error in inserting data!!!','class' => 'alert alert-danger'));
+                                }
+                            }else{
+                                $this->session->set_flashdata('increment_add_msg', array('text' => 'This salary increment already exists!!!','class' => 'alert alert-danger'));
+                            } // if( !$exists ){
+                        }else{
+                            $this->session->set_flashdata('increment_add_msg', array('text' => $stfName.' is not in this division!!!','class' => 'alert alert-danger'));
+                        } // if( $LoggedDivId == $stfDivId ){
                         redirect('increment/viewIncrements');   
-                    }    
-                }
+                    }    // if( $submit_dt < $inc_date ){
+                } //if ($this->form_validation->run() == FALSE){
             }else{
                 redirect('increment/viewIncrements');
             }
         }else{
-            redirect('Login');
+            redirect('User');
         }  
     }
      // updating increment information
     public function updateIncrementInfo(){
         if(is_logged_in()){
-            if ($this->input->post('btn_edit_increment') == "Update"){
+            if ( $this->input->post('btn_edit_increment') == "Update" ){
                 $inc_id = $this->input->post('inc_id_hidden_upd'); 
                 $stf_id = $this->input->post('stf_id_hidden_upd'); 
                 $year   = $this->input->post('inc_year_select_upd'); 
+                $status = $this->input->post('inc_status_select_upd');
+                $defects = $this->input->post('defects_select_upd');
                 $this->form_validation->set_rules("name_txt_upd","Name","trim|required");              
-                if ($this->form_validation->run() == FALSE){
+                if ( $this->form_validation->run() == FALSE ){
                     //validation fails
                     $this->session->set_flashdata('updateIncMsg', array('text' => 'All the fields are required!','class' => 'alert alert-danger'));
                     $this->viewIncrements();
-                }else{  
+                }else{
+                    // check whether increment has defects and status not equal to 1
+                    if ( $this->userrole_id==7 ) {
+                        if( $defects==1 && $status != 1 ){
+                            $this->session->set_flashdata( 'updateIncMsg', array('text' => 'Clear defects before update!!!','class' => 'alert alert-danger','update'=>'false') );
+                            redirect('Increment/viewIncrements');
+                        }
+                    }elseif ( $this->userrole_id==8 ) {
+                        if( $defects==1 && ($status == 4 || $status == 5) ){
+                            $this->session->set_flashdata( 'updateIncMsg', array('text' => 'Clear defects before update!!!','class' => 'alert alert-danger','update'=>'false') );
+                            redirect('Increment/viewIncrements');
+                        }
+                    }elseif ( $this->userrole_id==9 ) {
+                        if( $defects==1 && ($status == 6) ){
+                            $this->session->set_flashdata( 'updateIncMsg', array('text' => 'Clear defects before update!!!','class' => 'alert alert-danger','update'=>'false') );
+                            redirect('Increment/viewIncrements');
+                        }
+                    }
+
                     $now = date('Y-m-d H:i:s');
                     $data = array(
                         'tr_inc_id' => $this->input->post('inc_id_hidden_upd'),
@@ -465,18 +741,18 @@ class Increment extends CI_Controller {
                     //print_r($data); die();      
                     $result = $this->Increment_model->update_increment($data);
 
-                    if($result){
+                    if( $result ){
                         $this->session->set_flashdata('updateIncMsg', array('text' => 'Increment details updated successfully','class' => 'alert alert-success','update'=>'true'));
                     }else{
                         $this->session->set_flashdata('updateIncMsg', array('text' => 'Error in updating!!!','class' => 'alert alert-danger','update'=>'false'));
                     }
                     $this->viewIncrements();
-                }
+                } // if ( $this->form_validation->run() == FALSE ){
             }else{
                 $this->viewIncrements();
             }
         }else{
-            redirect('Login');
+            redirect('User');
         }
     } 
     public function deleteIncrementInfo(){
@@ -490,12 +766,17 @@ class Increment extends CI_Controller {
     // Go to Increment reports page
     public function viewIncrementReports(){
         if(is_logged_in()){
-            $userRole = $this->session->userdata['userrole'];
-            if($userRole == 'System Administrator' || $this->userRole == 'Divisional User' ){
+
+            if( $this->userrole_id == '1' || $this->userrole_id == '8' || $this->userrole_id == '9' ){ // user is admin
                 $current_month_date = date("m-d"); // get the current month and date
                 $condition1 = 'date_format(st.first_app_dt,"%m-%d") <= "'.$current_month_date.'" '; // next month to be ignored
                 //die();
-            }else if($userRole == 'School User'){
+            }else if( $this->userrole_id == '7' ){ // user is edu. div. user
+                $current_month_date = date("m-d"); // get the current month and date
+                $eduDivId = $this->session->userdata['div_id'];
+                $condition1 = 'date_format(st.first_app_dt,"%m-%d") <= "'.$current_month_date.'" and sdt.div_id = "'.$eduDivId.'" ';    // next month to be ignored
+                //die();
+            }else if( $this->userrole_id == '2' ){ // user is school
                 $current_month_date = date("m-d"); // get the current month and date
                 $censusId = $this->session->userdata['census_id'];
                 $condition1 = 'date_format(st.first_app_dt,"%m-%d") <= "'.$current_month_date.'" and st.census_id = "'.$censusId.'" ';    // next month to be ignored
@@ -508,7 +789,7 @@ class Increment extends CI_Controller {
                 foreach ($all_teachers as $teacher) {
                     $stfId = $teacher->stf_id;
                     //$app_date = $teacher->first_app_dt;
-                    $this->Increment_model->get_stf_increment_not_submit($stfId);
+                    //$this->Increment_model->get_stf_increment_not_submit($stfId);
                     if($this->Increment_model->get_stf_increment_not_submit($stfId)){
                         $condition = 'st.stf_id = "'.$stfId.'" ';
                         $tr_not_submit_increment_upto_now[] = $this->Staff_model->get_stf_by_condition($condition);
@@ -523,13 +804,21 @@ class Increment extends CI_Controller {
              
             //$increments = $this->Increment_model->view_increments($condition);
             //print_r($newMessages); die();
+            if( $this->userrole_id == '7' ){
+                $data['user_header'] = 'user_edu_division_header';
+            }elseif( $this->userrole_id == '8' ){
+                $data['user_header'] = 'user_zonal_file_header';
+            }elseif( $this->userrole_id == '9' ){
+                $data['user_header'] = 'user_zonal_file_header';
+            }else{
+                $data['user_header'] = 'user_admin_header';
+            }
             $data['title'] = 'Salary Increment Reports';
             $data['tr_not_submit_increment_upto_now'] = $tr_not_submit_increment_upto_now;
-            $data['user_header'] = 'user_admin_header';
             $data['user_content'] = 'increments/increment_reports';
             $this->load->view('templates/user_template', $data);
         }else{
-            redirect('Login');
+            redirect('User');
         }
     }
     // following function used in increment reports page
@@ -538,7 +827,15 @@ class Increment extends CI_Controller {
             $year = date("Y");
             $condition = 'increment_year = "'.$year.'" ';
             $month = date("m"); // get the current month
-            $condition1 = 'month(st.first_app_dt) <= "'.$month.'" ';    // next month to be ignored
+            if ( $this->userrole_id==1 || $this->userrole_id==8 || $this->userrole_id==9) {
+                $condition1 = 'month(st.first_app_dt) <= "'.$month.'" ';    // next month to be ignored
+            }elseif ($this->userrole_id==7) { // user is edu. division
+                $eduDivId = $this->session->userdata['div_id'];
+                $condition1 = 'month(st.first_app_dt) <= "'.$month.'" and sdt.div_id = "'.$eduDivId.'" ';    // next month to be ignored
+            }elseif ($this->userrole_id==2) { // user is school
+                $censusId = $this->session->userdata['census_id'];
+                $condition1 = 'month(st.first_app_dt) <= "'.$month.'" and st.census_id = "'.$censusId.'" ';    // next month to be ignored
+            }
             $all_teachers = $this->Staff_model->get_stf_by_condition($condition1); // find all teacher of staff_tbl whos month of first app date is less than or equal to current month, bcz next month to be avoided
             //print_r($all_teachers); die();
             if($all_teachers){
@@ -556,7 +853,7 @@ class Increment extends CI_Controller {
             }
             return $tr_not_submit_increment_upto_now;
     }
-    // view teachers who have not submitted the salary increment reports by year 
+    // view teachers who have not submitted the salary increment by year 
     public function viewTeachersNotSubmitIncrement(){
         if(is_logged_in()){
             if ($this->input->post('btn_view_inc_not_submit') == "View"){
@@ -567,11 +864,22 @@ class Increment extends CI_Controller {
                     $this->viewIncrementReports();
                 }else{
                     $year = $this->input->post('inc_year_select');
-                    $condition = 'st.stf_type_id = 1';    // only the academic staff
+                     if( $this->userrole_id=='2' ){
+                        $censusId = $this->session->userdata['census_id'];
+                        $condition = 'st.stf_type_id = 1 and st.`census_id = '.$censusId;    // only the academic staff
+                        //$data['user_header'] = 'user_edu_division_header';
+                    }elseif( $this->userrole_id=='7' ){
+                        $eduDivId = $this->session->userdata['div_id'];
+                        $condition = 'st.stf_type_id = 1 and sdt.div_id = '.$eduDivId;    // only the academic staff
+                        //$data['user_header'] = 'user_edu_division_header';
+                    }else{
+                        $condition = 'st.stf_type_id = 1';    // only the academic staff
+                    }
+                    ini_set('memory_limit', '256M');
                     $academic_staff = $this->Staff_model->get_stf_by_condition($condition);
                     //print_r($academic_staff); die();
-                     if($academic_staff){
-                        foreach ($academic_staff as $teacher) {
+                     if( $academic_staff ){
+                        foreach ( $academic_staff as $teacher ) {
                             $stfId = $teacher->stf_id;
                             //$app_date = $teacher->first_app_dt;
                             $this->Increment_model->check_increment_exists($stfId,$year);
@@ -587,7 +895,15 @@ class Increment extends CI_Controller {
                     $data['academic_year'] = $year;
                     $data['title'] = 'Salary Increment Reports';
                     $data['stf_data_no_increment'] = $stf_data_no_increment;
-                    $data['user_header'] = 'user_admin_header';
+                    if($this->userrole_id=='7'){
+                        $data['user_header'] = 'user_edu_division_header';
+                    }elseif($this->userrole_id=='8'){
+                        $data['user_header'] = 'user_zonal_file_header';
+                    }elseif($this->userrole_id=='9'){
+                        $data['user_header'] = 'user_zonal_file_header';
+                    }else{
+                        $data['user_header'] = 'user_admin_header';
+                    }
                     $data['user_content'] = 'increments/increment_reports';
                     $this->load->view('templates/user_template', $data);
                 }
@@ -595,7 +911,7 @@ class Increment extends CI_Controller {
                 redirect('Increment/viewIncrementReports');
             }
         }else{
-            redirect('Login');
+            redirect('User');
         }
     }
     // view teachers according to their increment form status in current year
@@ -612,7 +928,15 @@ class Increment extends CI_Controller {
                     $inc_status = $this->input->post('inc_status_select');
                     //die();
                     //$condition = 'st.stf_id = "'.$stfId.'" ';
-                    $condition = 'tit.inc_status_id = '.$inc_status.' and tit.increment_year = '.$year;    // only the academic staff
+                    if( $this->userrole_id==2 ) {
+                        $censusId = $this->session->userdata['census_id'];
+                        $condition = 'tit.inc_status_id = '.$inc_status.' and tit.increment_year = '.$year.' and st.census_id = '.$censusId;    // only the academic staff
+                    }elseif( $this->userrole_id==7 ) {
+                        $eduDivId = $this->session->userdata['div_id'];
+                        $condition = 'tit.inc_status_id = '.$inc_status.' and tit.increment_year = '.$year.' and sdt.div_id = '.$eduDivId;    // only the academic staff
+                    }else{
+                        $condition = 'tit.inc_status_id = '.$inc_status.' and tit.increment_year = '.$year;    // only the academic staff
+                    }
                     $tr_increment_status = $this->Increment_model->view_increments($condition);
                     //if()
                     //print_r($stf_data_no_increment); die();
@@ -620,7 +944,15 @@ class Increment extends CI_Controller {
                         $data['tr_not_submit_increment_upto_now'] = $this->findTeachersNotSubmitIncrementThisYearUptoNow(); 
                         $data['title'] = 'Salary Increment Reports';
                         $data['tr_increment_status'] = $tr_increment_status;
-                        $data['user_header'] = 'user_admin_header';
+                        if($this->userrole_id == '7'){
+                            $data['user_header'] = 'user_edu_division_header';
+                        }elseif($this->userrole_id == '8'){
+                            $data['user_header'] = 'user_zonal_file_header';
+                        }elseif($this->userrole_id == '9'){
+                            $data['user_header'] = 'user_zonal_file_header';
+                        }else{
+                            $data['user_header'] = 'user_admin_header';
+                        }
                         $data['user_content'] = 'increments/increment_reports';
                         $this->load->view('templates/user_template', $data); 
                     }else{
@@ -632,7 +964,7 @@ class Increment extends CI_Controller {
                 redirect('Increment/viewIncrementReports');
             }
         }else{
-            redirect('Login');
+            redirect('User');
         }
     }
 }

@@ -3,14 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
+    <meta name="description" content="Zonal educational office Deniyaya, Deniyaya zonal educational office, Zonal Educational Office, Zonal Education Office, Education Office">
     <meta name="author" content="">
     <title><?php echo $title; ?></title>
 
     <link rel="shortcut icon" type="image/x-icon"  href="<?php echo base_url(); ?>assets/images/bootstrap.min.css" />
     <!-- core CSS -->
     <link href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="<?php echo base_url(); ?>assets/css/font-awesome.min.css" rel="stylesheet" >
     <link href="<?php echo base_url(); ?>assets/css/animate.min.css" rel="stylesheet">
     <link href="<?php echo base_url(); ?>assets/css/prettyPhoto.css" rel="stylesheet">
     <link href="<?php echo base_url(); ?>assets/css/main.css" rel="stylesheet">
@@ -18,6 +17,9 @@
     <link href="<?php echo base_url(); ?>assets/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
     <link href="<?php echo base_url(); ?>assets/css/sweetalert/sweetalert.css" rel="stylesheet">
+    
+    <link href="<?php echo base_url(); ?>assets/fullcalendar/fullcalendar.css" rel="stylesheet">
+
     <!--[if lt IE 9]>
     <script src="<?php echo base_url(); ?>assets/js/html5shiv.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/respond.min.js"></script>
@@ -76,12 +78,23 @@
                     <ul class="nav navbar-nav">
                         <li><a href="<?php echo base_url(); ?>">මුල් පිටුව</a></li>
                         <li><a href="<?php echo base_url(); ?>GeneralInfo/aboutUs">අප ගැන</a></li>
-                          <li class="dropdown">
+                        <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">කොට්ඨාශ <i class="fa fa-angle-down"></i></a>
                             <ul class="dropdown-menu">
                                 <li><a href="<?php echo base_url(); ?>GeneralInfo/morawakaDiv">මොරවක</a></li>
                                 <li><a href="<?php echo base_url(); ?>GeneralInfo/kotapolaDiv">කොටපොල</a></li>
                                 <li><a href="<?php echo base_url(); ?>GeneralInfo/pasgodaDiv">පස්ගොඩ</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">අංශ <i class="fa fa-angle-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="<?php echo base_url(); ?>TeacherInstitution">ගුරු ආයතන අංශය</a></li>
+                                <li><a href="<?php echo base_url(); ?>SalarySection">වැටුප් අංශය</a></li>
+                                <li><a href="<?php echo base_url(); ?>DevelopmentSection">සංවර්ධන අංශය</a></li>
+                                <li><a href="<?php echo base_url(); ?>AccountSection">ගිණුම් අංශය</a></li>
+                                <li><a href="<?php echo base_url(); ?>PlanningSection">සැළසුම් අංශය</a></li>
+                                <li><a href="<?php echo base_url(); ?>GeneralControl">සාමාන්‍ය පාලන අංශය</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">
@@ -95,8 +108,8 @@
                                 <li><a href="<?php echo base_url(); ?>GeneralInfo/otherStaff">වෙනත්</a></li>
                             </ul>
                         </li>
-                        <!--<li><a href="<?php echo base_url(); ?>GeneralInfo/Gallery">ගැලරිය</a></li>-->                        
-                        <li><a href="<?php echo base_url(); ?>GeneralInfo/news">පුවත්</a></li>
+                        <!--<li><a href="<?php echo base_url(); ?>GeneralInfo/Gallery">ගැලරිය</a></li>-->
+                        <li><a href="<?php echo base_url(); ?>GeneralInfo/news">නවතම පුවත්</a></li>
                         <li><a href="<?php echo base_url(); ?>GeneralInfo/contact">සම්බන්ධ වීම</a></li>
                     </ul>
                 </div>

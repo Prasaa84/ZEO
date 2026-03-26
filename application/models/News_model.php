@@ -71,6 +71,7 @@ class News_model extends CI_Model{
         $this->db->from('news_tbl');
         $this->db->where($condition);
         $this->db->order_by('date_added','desc');
+        $this->db->where('is_deleted','0');
         $query = $this->db->get();
         if($query->num_rows() > 0){ 
             return $query->result();

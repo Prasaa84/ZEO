@@ -6,9 +6,14 @@ class ComputerLab extends CI_Controller {
     public function __construct(){
         parent::__construct();
         $this->load->model('School_model');
+        $this->load->model('Common_model');
         $this->load->model('Computer_lab_model');
         $this->all_com_res_items = $this->view_all_items();
-        $this->all_schools = $this->view_all_schools();
+        $this->userrole_id = $this->session->userdata['userrole_id'];
+        if($this->userrole_id != '2'){ 
+            $this->all_schools = $this->view_all_schools();
+            $this->all_edu_divisions = $this->Common_model->get_divisions(); 
+        }
     }
     public function index(){ 
         if(is_logged_in()){
@@ -23,8 +28,8 @@ class ComputerLab extends CI_Controller {
     // view computer lab resources details page
     public function viewDetails(){
         if(is_logged_in()){
-            $userrole = $this->session->userdata['userrole'];
-            if($userrole == 'School User'){ // if the user is school, then com lab res. details must be displayed by census id
+            //$userrole = $this->session->userdata['userrole'];
+            if( $this->userrole_id == '2' ){ // if the user is school, then com lab res. details must be displayed by census id
                 $censusId = $this->session->userdata['census_id'];
                 //$result = $this->School_model->get_logged_school($userid); 
                 $comLabDetails = $this->Computer_lab_model->view_item_status_by_census_id($censusId); 
@@ -131,7 +136,7 @@ class ComputerLab extends CI_Controller {
             $id = $this->uri->segment(3);
             $result = $this->Computer_lab_model->view_item_by_id($id);
             $data['item_result'] = $result;
-            $data['title'] = 'Physical Resource Update';
+            $data['title'] = 'Computer Lab Resource Update';
             $data['user_header'] = 'user_admin_header';
             $data['user_content'] = 'computer_lab/editItem';
             $this->load->view('templates/user_template', $data);
@@ -284,18 +289,19 @@ class ComputerLab extends CI_Controller {
         }
     }
     public function viewItemStatusByCensusId(){
-        if(is_logged_in()){
-            if ($_SERVER["REQUEST_METHOD"] == "POST"){ // check the submit button
-                $this->form_validation->set_rules("censusid_txt","Census ID","trim|required|regex_match[/^[0-9]{5}$/]");
-                if ($this->form_validation->run() == FALSE){
-                    //validation fails
-                    $this->session->set_flashdata('msg', array('text' => 'Census ID is not correct!','class' => 'alert alert-danger'));
-                    redirect('computerLab/viewDetails');
-                }else{  
-                    $censusId = $this->input->post('censusid_txt');
-                    $result = $this->Computer_lab_model->view_item_status_by_census_id($censusId);
+        if( is_logged_in() ){
+            if ( $this->input->post('btn_view_details_by_census') == "View" ){ // check the submit button
+                // echo 'hi'; die();
+                // $this->form_validation->set_rules("census_id_hidden","Census ID","trim|required|regex_match[/^[0-9]{5}$/]");
+                // if ( $this->form_validation->run() == FALSE ){
+                //     //validation fails
+                //     $this->session->set_flashdata('msg', array('text' => 'Census ID is not correct!','class' => 'alert alert-danger'));
+                //     redirect('computerLab/viewDetails');
+                // }else{  
+                    $censusId = $this->input->post('census_id_hidden');
+                    $result = $this->Computer_lab_model->view_item_status_by_census_id( $censusId );
                     //print_r($result); die();
-                    if($result){
+                    if( $result ){
                         $condition = 'census_id='.$censusId;
                         $data['com_lab_info_by_census'] = $result;
                         $data['title'] = 'Computer Laboratory Resource Details';
@@ -306,12 +312,77 @@ class ComputerLab extends CI_Controller {
                         $this->session->set_flashdata('msg', array('text' => 'No record found!','class' => 'alert alert-danger'));
                         redirect('computerLab/viewDetails');
                     }
-                }
+                // }
             }else{
                 redirect('computerLab/viewDetails');
             }
         }else{
             redirect('GeneralInfo/loginPage');
         } 
-     }
+    }
+    // used by admin, zonal office to make summery report of all schools' computer resource status
+    public function viewItemStatusAllSchools(){
+        if( is_logged_in() ){
+            if ( $this->input->post('btn_view_status') == "Show"  ){ 
+                $division = $this->input->post('edu_div_id_select');
+                $status = $this->input->post('status_select');
+                if( $status == 'q' ){
+                    $pageTitle = 'තිබෙන ප්‍රමාණය ';
+                    $field = 'quantity';
+                }
+                if( $status == 'w' ){
+                    $pageTitle = ' ක්‍රියාකාරී සංඛ්‍යාව ';
+                    $field = 'working';
+                }
+                if( $status == 'r' ){
+                    $pageTitle = ' ක්සකස්කල හැකි ප්‍රමාණය ';
+                    $field = 'repairable';
+                }
+                if( $status == 'nr' ){
+                    $pageTitle = ' ක්සකස්කල නොහැකි ප්‍රමාණය ';
+                    $field = 'not_repairable';
+                }
+                
+                // switch ( $status ) {
+                // case 'w':
+                //     $pageTitle = ' ක්‍රියාකාරී සංඛ්‍යාව ';
+                //     $field = 'working';
+                //     break;
+                // case 'r':
+                //     $pageTitle = 'සකස්කල හැකි ප්‍රමාණය';
+                //     $field = 'repairable';
+                //     break;
+                // case 'nr':
+                //     $pageTitle = 'සකස්කල නොහැකි ප්‍රමාණය';
+                //     $field = 'not_repairable';
+                //     break;
+                // default:
+                //     $pageTitle = 'තිබෙන ප්‍රමාණය ';
+                //     $field = 'quantity';
+                //     break;
+                // }
+                $result1 = $this->Computer_lab_model->view_item_status_details_all_schools( $division );
+                if( $result1 ){
+                    //$result2 is not used yet. get total of each item all schools have
+                    $result2 = $this->Computer_lab_model->get_item_wise_total_quantity_on( $field, $division );
+                    //print_r($result2); die();   
+                    $data['title'] = 'පරිගණක විද්‍යාගාරයේ සම්පත් - '.$pageTitle;
+                    $data['all_schools'] = $this->School_model->view_all_schools($division);
+                    $data['all_schools_com_lab_info'] = $result1;
+                    $data['all_schools_com_lab_item_total'] = $result2;
+                    $data['status'] = $status;                    
+                    $data['user_header'] = 'user_admin_header';
+                    $data['user_content'] = 'computer_lab/viewComputerLab';
+                    $this->load->view('templates/user_template', $data);
+                }else{
+                    $this->session->set_flashdata('msg', array('text' => 'No record found!','class' => 'alert alert-danger'));
+                    redirect('computerLab/viewDetails');                    
+                }
+            }else{
+                redirect('computerLab/viewDetails');                    
+            }
+        }else{
+            redirect('GeneralInfo/loginPage');
+        } 
+    }
 }

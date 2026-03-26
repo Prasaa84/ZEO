@@ -6,7 +6,6 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
       	<!-- Breadcrumbs-->
     	<ol class="breadcrumb">
         	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>user">Dashboard</a></li>
-        	<li class="breadcrumb-item"><a href="<?php echo base_url(); ?>school">School</a></li>
         	<li class="breadcrumb-item active">Update School Details</li>
       	</ol>
       	<?php
@@ -29,13 +28,25 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 		      		$contact = $school->contact_no;
 		      		$email = $school->email;	
 		      		$webaddress = $school->web_address;
+
+					$pro_id = $school->pro_id;
+		      		$pro_name = $school->pro_name; // province
+		      		$dis_id = $school->dis_id;
+		      		$dis_name = $school->dis_name;  // district
+		      		$zone_id = $school->zone_id;
+		      		$zone_name = $school->zone_name; // zone
+		      		$edu_div_id = $school->div_id;	
+		      		$edu_div_name = $school->div_name;	// adhayapana kottashaya
+		      		$div_sec_id = $school->div_sec_id; 
+		      		$div_sec_name = $school->div_sec_name_si; // sinhala name - divisional secretary
 		      		$gs_div_id = $school->gs_div_id;
-		      		$gs_div_name = $school->gs_div_name;
-		      		$edu_div_id = $school->edu_div_id;	
-		      		$edu_div_name = $school->div_name;	
+		      		$gs_div_name = $school->gs_name_si; // sinhala name - grama niladhari kottashaya
+
 		      		$sch_type_id = $school->sch_type_id;
 		      		$sch_belongs_to_id = $school->belongs_to_id;
-		      		$sch_belongs_to_name = $school->belongs_to_name;      		
+		      		$sch_belongs_to_name = $school->belongs_to_name;   
+		      		$grd_span_id = $school->grd_span_id;
+		      		$grd_span = $school->grd_span;    		
 		      		$sch_type_name = $school->sch_type;     		
 		      		$user_id = $school->user_id;
 		      		$date_added = $school->school_details_add_dt;	
@@ -43,7 +54,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 		      		$is_deleted = $school->is_deleted;
       			} ?>
 		<div class="row" id="main row">
-	        <div class="col-lg-8">
+	        <div class="col-lg-9">
 	         	<div class="row">
 		            <div class="col-lg-12 col-sm-12">
 		              	<div class="card mb-3" id="">
@@ -169,21 +180,73 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 		                    				<div class="form-group">
 		                    					<div class="row">
 		                    						<div class="col-lg-3 col-sm-3">
-		                    							<label for="txt_edudiv" class="control-label">අධ්‍යාපන කොට්ඨාසය</label>
+		                    							<label for="select_province" class="control-label">පලාත</label>
 		                    						</div>
 		                    						<div class="col-lg-9 col-sm-9">
-                          								<select class="form-control" id="select_edu_div" name="select_edu_div" title="Please select" data-toggle="tooltip">
-							                                <option value="<?php echo $edu_div_id; ?>" selected><?php echo $edu_div_name; ?></option>
+                          								<select class="form-control" id="select_province" name="select_province" title="Please select" data-toggle="tooltip">
+							                                <option value="<?php echo $pro_id; ?>" selected><?php echo $pro_name; ?></option>
 		                    								<?php 
-		                    								if(!empty($this->all_edu_div)){
-		                    									foreach ($this->all_edu_div as $row){ ?><!-- from PhysicalResource controller constructor method -->
-		                    										<option value="<?php echo $row->edu_div_id; ?>"><?php echo $row->div_name; ?></option>
+		                    								//if(!empty($this->all_edu_div)){
+		                    									foreach ($all_provinces as $row){ ?><!-- from PhysicalResource controller constructor method -->
+		                    										<option value="<?php echo $row->pro_id; ?>"><?php echo $row->pro_name; ?></option>
 		                    									<?php } 
-		                    								}else{ ?>
-		                    									<option value="" selected>No records found!!!</option>
-		                    								<?php } ?>                                
+		                    								//}else{ ?>
+		                    									<!--<option value="" >No records found!!!</option> -->
+		                    								<?php //} ?>                                
 		                    							</select>
+		                    							<span class="text-danger"><?php echo form_error('select_province'); ?></span>
+		                    						</div>
+		                    					</div>
+		                    				</div> <!-- /form group -->
+		                    				<div class="form-group">
+		                    					<div class="row">
+		                    						<div class="col-lg-3 col-sm-3">
+		                    							<label for="select_district" class="control-label">දිස්ත්‍රික්කය</label>
+		                    						</div>
+		                    						<div class="col-lg-9 col-sm-9">
+                          								<select class="form-control" id="select_district" name="select_district" title="Please select" data-toggle="tooltip">					
+							                                <option value="<?php echo $dis_id; ?>" selected><?php echo $dis_name; ?></option>
+							                            </select>
+		                    							<span class="text-danger"><?php echo form_error('select_district'); ?></span>
+		                    						</div>
+		                    					</div>
+		                    				</div> <!-- /form group -->
+		                    				<div class="form-group">
+		                    					<div class="row">
+		                    						<div class="col-lg-3 col-sm-3">
+		                    							<label for="select_zone" class="control-label">අධ්‍යාපන කලාපය</label>
+		                    						</div>
+		                    						<div class="col-lg-9 col-sm-9">
+                          								<select class="form-control" id="select_zone" name="select_zone" title="Please select" data-toggle="tooltip">                         	
+							                                <option value="<?php echo $zone_id; ?>" selected><?php echo $zone_name; ?></option>
+		                    							</select>
+		                    							<span class="text-danger"><?php echo form_error('select_zone'); ?></span>
+		                    						</div>
+		                    					</div>
+		                    				</div> <!-- /form group -->
+		                    				<div class="form-group">
+		                    					<div class="row">
+		                    						<div class="col-lg-3 col-sm-3">
+		                    							<label for="select_edu_div" class="control-label">අධ්‍යාපන කොට්ඨාසය</label>
+		                    						</div>
+		                    						<div class="col-lg-9 col-sm-9">
+                          								<select class="form-control" id="select_edu_div" name="select_edu_div" title="Please select" data-toggle="tooltip">		
+							                                <option value="<?php echo $edu_div_id; ?>" selected><?php echo $edu_div_name; ?></option>
+														</select>
 		                    							<span class="text-danger"><?php echo form_error('select_edu_div'); ?></span>
+		                    						</div>
+		                    					</div>
+		                    				</div> <!-- /form group -->
+		                    				<div class="form-group">
+		                    					<div class="row">
+		                    						<div class="col-lg-3 col-sm-3">
+		                    							<label for="select_div_sec" class="control-label">ප්‍රාදේශීය ලේකම් කොට්ඨාසය</label>
+		                    						</div>
+		                    						<div class="col-lg-9 col-sm-9">
+                          								<select class="form-control" id="select_div_sec" name="select_div_sec" title="Please select" data-toggle="tooltip">		
+							                                <option value="<?php echo $div_sec_id; ?>" selected><?php echo $div_sec_name; ?></option>
+														</select>
+		                    							<span class="text-danger"><?php echo form_error('select_div_sec'); ?></span>
 		                    						</div>
 		                    					</div>
 		                    				</div> <!-- /form group -->
@@ -195,15 +258,9 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 		                    						<div class="col-lg-9 col-sm-9">
 														<select class="form-control" id="select_gs_div" name="select_gs_div" title="Please select" data-toggle="tooltip">
 								                            <option value="<?php echo $gs_div_id; ?>" selected><?php echo $gs_div_name; ?></option>
-								                            <?php 
-								                              if(!empty($this->all_gs_div)){
-								                                foreach ($this->all_gs_div as $row){ ?><!-- from PhysicalResource controller constructor method -->
-								                                <option value="<?php echo $row->gs_div_id; ?>"><?php echo $row->gs_div_name; ?></option>
-								                            <?php } }else{ ?>
-								                                <option value="" selected>No records found!!!</option>
-								                            <?php } ?>     
-							                          </select>                          
-							                          <span class="text-danger"><?php echo form_error('select_gs_div'); ?></span>             
+								                               
+							                          	</select>                          
+							                          	<span class="text-danger"><?php echo form_error('select_gs_div'); ?></span> 
 							                      	</div>
 		                    					</div>
 		                    				</div> <!-- /form group -->
@@ -222,6 +279,27 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 		                    						</div>
 		                    					</div>
 		                    				</div> <!-- /form group -->
+		                    				
+		                    				<div class="form-group">
+		                    					<div class="row">
+		                    						<div class="col-lg-3 col-sm-3">
+		                    							<label for="txt_edudiv" class="control-label">පන්ති පරාසය</label>
+		                    						</div>
+		                    						<div class="col-lg-9 col-sm-9">
+                          								<select class="form-control" id="select_grade_span" name="select_grade_span" title="Please select" data-toggle="tooltip">
+							                                <option value="<?php echo $grd_span_id; ?>" selected><?php echo $grd_span; ?></option>
+		                    								<?php 
+								                              if(!empty($this->all_grade_span)){
+								                                foreach ($this->all_grade_span as $row){ ?><!-- from PhysicalResource controller constructor method -->
+								                                <option value="<?php echo $row->grd_span_id; ?>"><?php echo $row->grd_span; ?></option>
+								                            <?php } }else{ ?>
+								                                <option value="" selected>No records found!!!</option>
+								                            <?php } ?>  
+		                    							</select>
+		                    							<span class="text-danger"><?php echo form_error('select_grade_span'); ?></span>
+		                    						</div>
+		                    					</div>
+		                    				</div> <!-- /form group -->
 		                    				<div class="form-group">
 		                    					<div class="row">
 		                    						<div class="col-lg-3 col-sm-3"></div>
@@ -232,7 +310,6 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 		                    							<input type="hidden" name="date_added_hidden" value="<?php echo $date_added; ?>" />
 		                    							<input type="hidden" name="is_deleted_hidden" value="<?php echo $is_deleted; ?>" />
 		                    							<input id="btn_update_school" name="btn_update_school" type="submit" class="btn btn-primary mr-2 mt-2" value="Update" />
-		                    							<input id="btn_cancel" name="btn_cancel" type="reset" class="btn btn-warning mt-2 mr-2" value="Cancel" style="margin-top: 10px;" />
 														<a href="<?php echo base_url(); ?>ExcelExport/printSchoolById/<?php echo $census_id; ?>" type="button" class="btn btn-success mt-2" name="btn_print" id="btn_print" >Print</a>	                    							
 		                    						</div>
 		                    					</div>
@@ -259,3 +336,173 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 	      	</div>
 	  	</div>
 	</div> <!-- /container-fluid -->
+<script type="text/javascript">
+	// used to load districts when a province is selected
+    $(document).on('change', '#select_province', function(){  
+      var pro_id = $(this).val();
+     
+      if(!pro_id){
+        swal('Please select a province');
+      }else{
+        $.ajax({  
+            url:"<?php echo base_url(); ?>School/viewDistricts",  
+            method:"POST",  
+            data:{pro_id:pro_id},  
+            dataType:"json",  
+            success:function(districts)  
+            {  
+				if(!districts){
+					swal('Districts not found!!!!')
+					$('select#select_district').html('');
+					$('select[name="select_district"]').append('<option value="">---Not found---</option>').attr("selected", "true");   
+				}else{
+					$('select#select_district').html('');
+					$('select#select_zone').html('');
+					$('select#select_edu_div').html('');
+					$('select#select_div_sec').html('');
+					$('select#select_gs_div').html('');
+	                $('select[name="select_district"]').append('<option value="">---Select---</option>').attr("selected", "true");   
+	                $.each(districts, function(key,value) {
+	                    $('select[name="select_district"]').append('<option value="'+ value.dis_id +'">'+ value.dis_name +'</option>');
+	                });
+              	}  
+            }, 
+            error: function(xhr, status, error) {
+              alert(xhr.responseText);
+            } 
+        }) 
+      }
+    });
+    // used to load zones when a district is selected
+    $(document).on('change', '#select_district', function(){  
+      var dis_id = $(this).val();
+     
+      if(!dis_id){
+        swal('Please select a district');
+      }else{
+        $.ajax({  
+            url:"<?php echo base_url(); ?>School/viewZones",  
+            method:"POST",  
+            data:{dis_id:dis_id},  
+            dataType:"json",  
+            success:function(zones)  
+            {  
+				if(!zones){
+					swal('Zones not found!!!!')
+					$('select#select_zone').html('');
+					$('select[name="select_zone"]').append('<option value="">---Not found---</option>').attr("selected", "true");   
+				}else{
+					$('select#select_zone').html('');
+					$('select#select_edu_div').html('');
+	                $('select[name="select_zone"]').append('<option value="">---Select---</option>').attr("selected", "true");   
+	                $.each(zones, function(key,value) {
+	                    $('select[name="select_zone"]').append('<option value="'+ value.zone_id +'">'+ value.zone_name +'</option>');
+	                });
+              	}  
+            }, 
+            error: function(xhr, status, error) {
+              alert(xhr.responseText);
+            } 
+        }) 
+      }
+    });
+    // used to load edu. divisions when a zone is selected
+    $(document).on('change', '#select_zone', function(){  
+      var zone_id = $(this).val();
+     
+      if(!zone_id){
+        swal('Please select a Zone');
+      }else{
+        $.ajax({  
+            url:"<?php echo base_url(); ?>School/viewDivisions",  
+            method:"POST",  
+            data:{zone_id:zone_id},  
+            dataType:"json",  
+            success:function(divisions)  
+            {  
+				if(!divisions){
+					swal('Divisions not found!!!!')
+					$('select#select_edu_div').html('');
+					$('select[name="select_edu_div"]').append('<option value="">---Not found---</option>').attr("selected", "true");   
+				}else{
+					$('select#select_edu_div').html('');
+	                $('select[name="select_edu_div"]').append('<option value="">---Select---</option>').attr("selected", "true");   
+	                $.each(divisions, function(key,value) {
+	                    $('select[name="select_edu_div"]').append('<option value="'+ value.div_id +'">'+ value.div_name +'</option>');
+	                });
+              	}  
+            }, 
+            error: function(xhr, status, error) {
+              alert(xhr.responseText);
+            } 
+        }) 
+      }
+    });
+    // used to load divisional secretariat when a district is selected
+    $(document).on('change', '#select_district', function(){  
+      var dis_id = $(this).val();
+     
+      if(!dis_id){
+        swal('Please select a Zone');
+      }else{
+        $.ajax({  
+            url:"<?php echo base_url(); ?>School/viewDivSecretariat",  
+            method:"POST",  
+            data:{dis_id:dis_id},  
+            dataType:"json",  
+            success:function(divSec)  
+            {  
+				if(!divSec){
+					swal('Divisionsal secretariat not found!!!!')
+					$('select#select_div_sec').html('');
+					$('select[name="select_div_sec"]').append('<option value="">---Not found---</option>').attr("selected", "true");   
+				}else{
+					$('select#select_div_sec').html('');
+	                $('select[name="select_div_sec"]').append('<option value="">---Select---</option>').attr("selected", "true");   
+	                $.each(divSec, function(key,value) {
+	                    $('select[name="select_div_sec"]').append('<option value="'+ value.div_sec_id +'">'+ value.div_sec_name_si +'</option>');
+	                });
+              	}  
+            }, 
+            error: function(xhr, status, error) {
+              alert(xhr.responseText);
+            } 
+        }) 
+      }
+    });
+    // used to load gs divisions when a divisional secretariat is selected
+    $(document).on('change', '#select_div_sec', function(){  
+      var div_sec_id = $(this).val();
+
+      var dis_id = $('#select_district').val();
+      if(!div_sec_id){
+        swal('Please select the divisional secretariat');
+      }else if(!dis_id){
+        swal('Select the district to view grama niladhari divisions');
+      }else{
+        $.ajax({  
+            url:"<?php echo base_url(); ?>School/viewGsDivisions",  
+            method:"POST",  
+            data:{dis_id:dis_id,div_sec_id:div_sec_id},  
+            dataType:"json",  
+            success:function(divSec)  
+            {  
+				if(!divSec){
+					swal('Grama Niladhari Divisions not found!!!!')
+					$('select#select_gs_div').html('');
+					$('select[name="select_gs_div"]').append('<option value="">---Not found---</option>').attr("selected", "true");   
+				}else{
+					$('select#select_gs_div').html('');
+	                $('select[name="select_gs_div"]').append('<option value="">---Select---</option>').attr("selected", "true");   
+	                $.each(divSec, function(key,value) {
+	                    $('select[name="select_gs_div"]').append('<option value="'+ value.gs_div_id +'">'+ value.gs_name_si +'</option>');
+	                });
+              	}  
+            }, 
+            error: function(xhr, status, error) {
+              alert(xhr.responseText);
+            } 
+        }) 
+      }
+    });
+</script>
